@@ -15,7 +15,9 @@ public class HangmanModel {
         revealedChars = new char[answer.length()];
 
         for(int i = 0; i < maxTries; i++) {
-            revealedChars[i] = '_';
+            if(i<revealedChars.length) {
+                revealedChars[i] = '_';
+            }
         }
         usedLetters = new char[0];
         usedCount = 0;

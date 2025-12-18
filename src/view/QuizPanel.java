@@ -13,7 +13,7 @@ public class QuizPanel extends JPanel {
     private final JLabel lblImage;
     private final JTextField txtAnswer;
     private final JButton btnSubmit;
-    private final JButton btnNext;
+    //private final JButton btnNext;
     private final JLabel lblResult;
 
     public QuizPanel(MainController controller) {
@@ -40,9 +40,9 @@ public class QuizPanel extends JPanel {
         inputPanel.add(txtAnswer);
 
         btnSubmit = new JButton("Antwort prüfen");
-        btnNext = new JButton("Nächste Frage");
+        //btnNext = new JButton("Nächste Frage");
         inputPanel.add(btnSubmit);
-        inputPanel.add(btnNext);
+        //inputPanel.add(btnNext);
 
         southPanel.add(inputPanel, BorderLayout.NORTH);
 
@@ -54,8 +54,7 @@ public class QuizPanel extends JPanel {
 
         // Events -> Controller
         btnSubmit.addActionListener(e -> controller.quizSubmit(txtAnswer.getText()));
-
-        btnNext.addActionListener(e -> controller.quizNext());
+        //btnNext.addActionListener(e -> controller.quizNext());
 
         // Enter in Textfeld = Submit
         txtAnswer.addActionListener(e -> controller.quizSubmit(txtAnswer.getText()));
@@ -124,7 +123,7 @@ public class QuizPanel extends JPanel {
     public void setInputsEnabled(boolean enabled) {
         txtAnswer.setEnabled(enabled);
         btnSubmit.setEnabled(enabled);
-        btnNext.setEnabled(enabled);
+        //btnNext.setEnabled(enabled);
     }
 
     public String getAnswerInput() {

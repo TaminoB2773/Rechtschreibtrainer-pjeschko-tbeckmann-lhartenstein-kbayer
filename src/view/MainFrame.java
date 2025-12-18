@@ -4,105 +4,70 @@ import controller.MainController;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
 
-/**
- * MainFrame (View)
- * - enthält keine Spiellogik
- * - zeigt nur die Oberfläche an
- * - schaltet zwischen Panels (CardLayout)
- * - leitet Button-Events an den Controller weiter
- */
 public class MainFrame extends JFrame {
 
-    // Navigation ActionCommands (Controller hört darauf)
-    public static final String CMD_SHOW_QUIZ = "main_show_quiz";
-    public static final String CMD_SHOW_HANGMAN = "main_show_hangman";
-    public static final String CMD_SHOW_MANAGEMENT = "main_show_management";
-
-    // Card-Namen (intern fürs Umschalten)
-    private static final String CARD_QUIZ = "card_quiz";
-    private static final String CARD_HANGMAN = "card_hangman";
-    private static final String CARD_MANAGEMENT = "card_management";
+    private static final String CARD_MANAGE = "MANAGE";
+    private static final String CARD_QUIZ = "QUIZ";
+    private static final String CARD_HANGMAN = "HANGMAN";
 
     private final CardLayout cardLayout;
     private final JPanel cardPanel;
 
-    // Panels (View-Komponenten)
+    private final QuestionManagementPanel managePanel;
     private final QuizPanel quizPanel;
     private final HangmanPanel hangmanPanel;
-    private final QuestionManagementPanel questionManagementPanel;
 
-    // Navigation (oben)
-    private JButton btnQuiz;
-    private JButton btnHangman;
-    private JButton btnManagement;
-
-    /**
-     * Erstellt das Hauptfenster und alle View-Panels.
-     * @param controller ActionListener aus der Controller-Schicht
-     */
-    public MainFrame( ActionListener controller ) {
+    public MainFrame(MainController controller) {
         super("Rechtschreibtrainer");
 
-        // Grund-Setup
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout(10, 10));
 
-        // Panels anlegen (nur UI, Events gehen an Controller)
-        quizPanel = new QuizPanel((MainController) controller);
-        hangmanPanel = new HangmanPanel((MainController) controller);
-        questionManagementPanel = new QuestionManagementPanel(controller);
-
-        // Navigation + Cards bauen
         add(createTopNavigation(controller), BorderLayout.NORTH);
+
+        managePanel = new QuestionManagementPanel(controller);
+        quizPanel = new QuizPanel(controller);
+        hangmanPanel = new HangmanPanel(controller);
 
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
 
+        cardPanel.add(managePanel, CARD_MANAGE);
         cardPanel.add(quizPanel, CARD_QUIZ);
         cardPanel.add(hangmanPanel, CARD_HANGMAN);
-        cardPanel.add(questionManagementPanel, CARD_MANAGEMENT);
 
         add(cardPanel, BorderLayout.CENTER);
 
-        // Startansicht
-        showQuiz();
-
-        // Fenstergröße/Position
         setMinimumSize(new Dimension(900, 600));
         setLocationRelativeTo(null);
         setVisible(true);
     }
 
-    /**
-     * Obere Navigation (nur UI + ActionCommands).
-     */
-    private JPanel createTopNavigation(ActionListener controller) {
+    private JPanel createTopNavigation(MainController controller) {
         JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-        btnQuiz = new JButton("Quiz");
-        btnQuiz.setActionCommand(CMD_SHOW_QUIZ);
-        btnQuiz.addActionListener(controller);
+        JButton btnManage = new JButton("Fragen verwalten");
+        btnManage.addActionListener(e -> controller.showManage());
 
-        btnHangman = new JButton("Hangman");
-        btnHangman.setActionCommand(CMD_SHOW_HANGMAN);
-        btnHangman.addActionListener(controller);
+        JButton btnQuiz = new JButton("Quiz");
+        btnQuiz.addActionListener(e -> controller.showQuiz());
 
-        btnManagement = new JButton("Fragen verwalten");
-        btnManagement.setActionCommand(CMD_SHOW_MANAGEMENT);
-        btnManagement.addActionListener(controller);
+        JButton btnHangman = new JButton("Hangman");
+        btnHangman.addActionListener(e -> controller.showHangman());
 
+        top.add(btnManage);
         top.add(btnQuiz);
         top.add(btnHangman);
-        top.add(btnManagement);
 
         return top;
     }
 
-    // ===== Umschalten (View-only) =====
+    public void showManagePanel() {
+        cardLayout.show(cardPanel, CARD_MANAGE);
+    }
 
-    public void showQuiz() {
+    public void showQuizPanel() {
         cardLayout.show(cardPanel, CARD_QUIZ);
     }
 
@@ -110,14 +75,9 @@ public class MainFrame extends JFrame {
         cardLayout.show(cardPanel, CARD_HANGMAN);
     }
 
-    public void showManagePanel() {
-        cardLayout.show(cardPanel, CARD_MANAGEMENT);
+    public QuestionManagementPanel getManagePanel() {
+        return managePanel;
     }
-    public void showQuizPanel() {
-        cardLayout.show(cardPanel, CARD_QUIZ);
-    }
-
-    // ===== Getter (Controller darf View bedienen, aber keine Logik hier) =====
 
     public QuizPanel getQuizPanel() {
         return quizPanel;
@@ -126,9 +86,4 @@ public class MainFrame extends JFrame {
     public HangmanPanel getHangmanPanel() {
         return hangmanPanel;
     }
-
-    public QuestionManagementPanel getManagePanel() {
-        return questionManagementPanel;
-    }
-
 }

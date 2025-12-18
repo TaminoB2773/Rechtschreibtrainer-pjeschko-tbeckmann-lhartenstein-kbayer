@@ -29,7 +29,7 @@ public class MainController {
         pool.addQuestion(new TextQuestion("Schreibe richtig: Katze", "Katze"));
         pool.addQuestion(new ImageQuestion("Was siehst du? (Bildfrage)", "Hund", "img/hund.png"));
 
-        frame = new MainFrame((ActionListener) this);
+        frame = new MainFrame(this);
         showManage();
     }
 
@@ -149,6 +149,7 @@ public class MainController {
 
         if (correct) {
             frame.getQuizPanel().showResult("Richtig!");
+            quizNext();
         } else {
             frame.getQuizPanel().showResult("Falsch! Richtige Antwort: " + current.getCorrectAnswer());
         }
