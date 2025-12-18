@@ -106,12 +106,15 @@ public class MainFrame extends JFrame {
         cardLayout.show(cardPanel, CARD_QUIZ);
     }
 
-    public void showHangman() {
+    public void showHangmanPanel() {
         cardLayout.show(cardPanel, CARD_HANGMAN);
     }
 
-    public void showManagement() {
+    public void showManagePanel() {
         cardLayout.show(cardPanel, CARD_MANAGEMENT);
+    }
+    public void showQuizPanel() {
+        cardLayout.show(cardPanel, CARD_QUIZ);
     }
 
     // ===== Getter (Controller darf View bedienen, aber keine Logik hier) =====
@@ -124,20 +127,8 @@ public class MainFrame extends JFrame {
         return hangmanPanel;
     }
 
-    public QuestionManagementPanel getQuestionManagementPanel() {
+    public QuestionManagementPanel getManagePanel() {
         return questionManagementPanel;
     }
 
-    public Object getManagePanel() {
-    }
-
-    public void showManagePanel() {
-        
-    }
-
-    public void showQuizPanel() {
-    }
-
-    public void showHangmanPanel() {
-    }
 }

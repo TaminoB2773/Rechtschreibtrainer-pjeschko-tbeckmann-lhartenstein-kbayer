@@ -151,5 +151,6 @@ public class QuestionPool {
     }
 
     public Question getRandomQuestion() {
+        return questions[(int) (Math.random() * count)];
     }
 }

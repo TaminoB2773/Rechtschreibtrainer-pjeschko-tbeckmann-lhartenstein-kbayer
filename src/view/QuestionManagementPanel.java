@@ -240,4 +240,7 @@ public class QuestionManagementPanel extends JPanel {
         }
         return null;
     }
+
+    public void updateQuestionList(String text) {
+    }
 }
