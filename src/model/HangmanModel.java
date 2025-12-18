@@ -76,12 +76,24 @@ public class HangmanModel {
     }
 
     public String getMaskedWord() {
-        return null;
+        String maskedWord = "";
+        for (int i = 0; i < revealedChars.length; i++) {
+            if(revealedChars[i] != '_') {
+                maskedWord += revealedChars[i];
+            }
+        }return maskedWord;
     }
 
     public String getUsedLetters() {
+        String usedLettersString = "";
+        for (int i = 0; i < usedCount; i++) {
+            if (usedLetters[i] != '_') {
+                usedLettersString += usedLetters[i];
+            }
+        }return usedLettersString;
     }
 
     public int getTriesLeft() {
+        return triesLeft;
     }
 }
