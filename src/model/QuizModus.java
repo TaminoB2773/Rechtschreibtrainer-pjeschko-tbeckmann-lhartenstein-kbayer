@@ -10,7 +10,7 @@ public class QuizModus {
     /**
      * Konstruktor: Initialisiert das QuizModel mit einem QuestionPool.
      */
-    public QuizModel(QuestionPool pool) {
+    public QuizModus(QuestionPool pool) {
         this.pool = pool;
         this.currentIndex = 0; // Beginne bei der ersten Frage
         this.correctCount = 0;
