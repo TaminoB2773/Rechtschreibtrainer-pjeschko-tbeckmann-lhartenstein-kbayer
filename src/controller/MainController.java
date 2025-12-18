@@ -5,6 +5,7 @@ import controller.QuestionFileManager;
 import view.*;
 
 import javax.swing.*;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 
 public class MainController {
@@ -28,7 +29,7 @@ public class MainController {
         pool.addQuestion(new TextQuestion("Schreibe richtig: Katze", "Katze"));
         pool.addQuestion(new ImageQuestion("Was siehst du? (Bildfrage)", "Hund", "img/hund.png"));
 
-        frame = new MainFrame(this);
+        frame = new MainFrame((ActionListener) this);
         showManage();
     }
 

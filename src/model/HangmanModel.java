@@ -75,4 +75,13 @@ public class HangmanModel {
         return triesLeft <= 0 && !isWon();
     }
 
+    public String getMaskedWord() {
+        return null;
+    }
+
+    public String getUsedLetters() {
+    }
+
+    public int getTriesLeft() {
+    }
 }

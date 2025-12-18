@@ -1,5 +1,7 @@
 package view;
 
+import controller.MainController;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -40,7 +42,7 @@ public class MainFrame extends JFrame {
      * Erstellt das Hauptfenster und alle View-Panels.
      * @param controller ActionListener aus der Controller-Schicht
      */
-    public MainFrame(ActionListener controller) {
+    public MainFrame( ActionListener controller ) {
         super("Rechtschreibtrainer");
 
         // Grund-Setup
@@ -48,8 +50,8 @@ public class MainFrame extends JFrame {
         setLayout(new BorderLayout());
 
         // Panels anlegen (nur UI, Events gehen an Controller)
-        quizPanel = new QuizPanel(controller);
-        hangmanPanel = new HangmanPanel(controller);
+        quizPanel = new QuizPanel((MainController) controller);
+        hangmanPanel = new HangmanPanel((MainController) controller);
         questionManagementPanel = new QuestionManagementPanel(controller);
 
         // Navigation + Cards bauen
@@ -124,5 +126,18 @@ public class MainFrame extends JFrame {
 
     public QuestionManagementPanel getQuestionManagementPanel() {
         return questionManagementPanel;
+    }
+
+    public Object getManagePanel() {
+    }
+
+    public void showManagePanel() {
+        
+    }
+
+    public void showQuizPanel() {
+    }
+
+    public void showHangmanPanel() {
     }
 }

@@ -149,4 +149,7 @@ public class QuestionPool {
         }
         questions = bigger;
     }
+
+    public Question getRandomQuestion() {
+    }
 }
