@@ -242,5 +242,15 @@ public class QuestionManagementPanel extends JPanel {
     }
 
     public void updateQuestionList(String text) {
+            if (text == null) {
+                return;
+            }
+
+            String t = text.trim();
+            if (t.isEmpty()) {
+                return;
+            }
+
+            listModel.addElement(t);
     }
 }
