@@ -1,0 +1,17 @@
+TEXT;Setze ß oder ss: Stra_e;Straße
+TEXT;Setze ß oder ss: Fu_;Fuß
+TEXT;Setze ß oder ss: gro_ ;groß
+TEXT;Setze ß oder ss: hei_en;heißen
+TEXT;Setze ß oder ss: Flu_s;Fluss
+TEXT;Setze ß oder ss: mü_en;müssen
+TEXT;Setze h: ge_en;gehen
+TEXT;Setze h: se_en;sehen
+TEXT;Setze h: Za_l;Zahl
+TEXT;Setze h: me_r;mehr
+TEXT;Setze h: fa_en;fahren
+TEXT;Setze h: wo_nen ;wohnen
+TEXT;Setze ie oder i: Br_f;Brief
+TEXT;Setze ie oder i: sp_len ;spielen
+TEXT;Setze ie oder i: T_r;Tier
+TEXT;Setze ie oder i: L_d ;Lied
+IMAGE;Was siehst du? (Bildfrage);Hund;img/hund.png

@@ -25,11 +25,8 @@ public class MainController {
     }
 
     public void startApp() {
-        pool.addQuestion(new TextQuestion("Schreibe richtig: Hund", "Hund"));
-        pool.addQuestion(new TextQuestion("Schreibe richtig: Katze", "Katze"));
-        pool.addQuestion(new ImageQuestion("Was siehst du? (Bildfrage)", "Hund", "img/hund.png"));
-
         frame = new MainFrame(this);
+        loadQuestionsFromFile();
         showManage();
     }
 
