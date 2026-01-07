@@ -1,11 +1,20 @@
 TEXT;Setze ß oder ss: Stra_e;Straße
+IMAGE;Was siehst du?;Katze;img/Katze.png
 TEXT;Setze ß oder ss: Fu_;Fuß
+IMAGE;Was siehst du?;Haus;img/Haus.png
 TEXT;Setze ß oder ss: gro_ ;groß
+IMAGE;Was siehst du?;Maus;img/Maus.png
 TEXT;Setze ß oder ss: hei_en;heißen
+IMAGE;Was siehst du?;Lehrer;img/Lehrer.png
 TEXT;Setze ß oder ss: Flu_s;Fluss
+IMAGE;Was siehst du?;Ball;img/Ball.png
 TEXT;Setze ß oder ss: mü_en;müssen
+IMAGE;Was siehst du?;Auto;img/Auto.png
 TEXT;Setze ie oder i: Br_f;Brief
+IMAGE;Was siehst du?;Fenster;img/Fenster.png
 TEXT;Setze ie oder i: sp_len ;spielen
 TEXT;Setze ie oder i: T_r;Tier
 TEXT;Setze ie oder i: L_d ;Lied
-IMAGE;Was siehst du? (Bildfrage);Hund;img/hund.png
+TEXT;Korrigiere den Fehler: Standart;Standard
+IMAGE;Was siehst du?;Hund;img/hund.png
+TEXT;Korrigiere den Fehler: Maschiene;Maschine
