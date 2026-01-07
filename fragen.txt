@@ -6,10 +6,10 @@ TEXT;Setze ß oder ss: gro_ ;groß
 IMAGE;Was siehst du?;Maus;img/Maus.png
 TEXT;Setze ß oder ss: hei_en;heißen
 IMAGE;Was siehst du?;Lehrer;img/Lehrer.png
-TEXT;Setze ß oder ss: Flu_s;Fluss
+TEXT;Setze ß oder ss: Flu_ ;Fluss
 IMAGE;Was siehst du?;Ball;img/Ball.png
 TEXT;Setze ß oder ss: mü_en;müssen
-IMAGE;Was siehst du?;Auto;img/Auto.png
+IMAGE;Was siehst du?;Auto;img/Auto.jpg
 TEXT;Setze ie oder i: Br_f;Brief
 IMAGE;Was siehst du?;Fenster;img/Fenster.png
 TEXT;Setze ie oder i: sp_len ;spielen
