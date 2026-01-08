@@ -1,8 +1,8 @@
 package controller;
 
+import java.util.List;
 import model.*;
 import view.*;
-
 import javax.swing.*;
 import java.io.IOException;
 
@@ -10,7 +10,7 @@ public class MainController {
 
     private QuestionPool pool;
     private HangmanModel hangmanModel;
-    private QuizModel quizModel;
+    private QuizModus quizModel;
     private QuestionFileManager fileManager;
     private MainFrame frame;
     private final int HANGMAN_MAX_TRIES = 8;
@@ -18,7 +18,7 @@ public class MainController {
     public MainController() {
         pool = new QuestionPool();
         hangmanModel = new HangmanModel();
-        quizModel = new QuizModel(pool);
+        quizModel = new QuizModus(pool);
         fileManager = new QuestionFileManager();
     }
 
@@ -36,8 +36,11 @@ public class MainController {
     }
 
     public void showQuiz() {
+        if (pool != null && !pool.isEmpty()) {
+            pool.shuffle();
+        }
         frame.showQuizPanel();
-        quizModel = new QuizModel(pool);
+        quizModel = new QuizModus(pool);
         updateQuizView();
     }
 
@@ -46,30 +49,31 @@ public class MainController {
         startNewHangmanGame();
     }
 
-    // --- QUIZ LOGIK (Bilder repariert) ---
+    // --- QUIZ LOGIK ---
 
     public void quizSubmit(String answer) {
         Question current = quizModel.getCurrentQuestion();
-        if (current == null) {
-            frame.getQuizPanel().showResult("Keine Fragen vorhanden.");
-            return;
-        }
+        if (current == null) return;
 
-        boolean correct = quizModel.submitAnswer(answer);
+        boolean correct = quizModel.checkAnswer(answer);
 
         if (correct) {
-            frame.getQuizPanel().showResult("Richtig!");
-            quizNext();
+            frame.getQuizPanel().showResult("Richtig! ✅");
         } else {
-            frame.getQuizPanel().showResult("Falsch! Richtige Antwort: " + current.getCorrectAnswer());
+            frame.getQuizPanel().showResult("Falsch! ❌ Lösung: " + current.getCorrectAnswer());
         }
-    }
 
-    public void quizNext() {
-        if (quizModel.getQuestionCount() > 0) {
+        // Timer für automatischen Übergang (1,5 Sekunden Pause)
+        Timer timer = new Timer(1500, e -> {
             quizModel.nextQuestion();
-        }
-        updateQuizView();
+            if (quizModel.isFinished()) {
+                showQuizSummary();
+            } else {
+                updateQuizView();
+            }
+        });
+        timer.setRepeats(false);
+        timer.start();
     }
 
     private void updateQuizView() {
@@ -82,9 +86,12 @@ public class MainController {
             return;
         }
 
-        frame.getQuizPanel().showQuestion(q.getQuestionText());
+        // Optional: Zeigt oben die aktuelle Nummer an (z.B. "Frage 3 von 10")
+        String progress = "Frage " + (quizModel.getCorrectCount() + quizModel.getWrongQuestions().size() + 1)
+                + " von " + quizModel.getQuestionCount();
 
-        // FIX: Hier wird geprüft, ob ein Bild angezeigt werden muss
+        frame.getQuizPanel().showQuestion(progress + "\n\n" + q.getQuestionText());
+
         if (q instanceof ImageQuestion) {
             frame.getQuizPanel().showImage(((ImageQuestion) q).getImagePath());
         } else {
@@ -94,9 +101,41 @@ public class MainController {
         frame.getQuizPanel().showResult("");
     }
 
+    private void showQuizSummary() {
+        frame.showQuizResultPanel();
+        frame.getQuizResultPanel().showResults(
+                quizModel.getCorrectCount(),
+                quizModel.getTotalCount(),
+                quizModel.getWrongQuestions()
+        );
+    }
+
+    public void retryWrongQuestions() {
+        List<Question> failures = quizModel.getWrongQuestions();
+        if (failures.isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "Keine Fehler zum Verbessern vorhanden!");
+            showQuiz();
+            return;
+        }
+
+        QuestionPool retryPool = new QuestionPool(failures.size());
+        for (Question q : failures) {
+            retryPool.addQuestion(q);
+        }
+
+        retryPool.shuffle();
+        quizModel = new QuizModus(retryPool);
+        frame.showQuizPanel();
+        updateQuizView();
+    }
+
     // --- HANGMAN LOGIK ---
 
     public void startNewHangmanGame() {
+        if (pool != null && !pool.isEmpty()) {
+            pool.shuffle(); // Mischt den Pool für zufällige Begriffe
+        }
+
         Question q = pool.getRandomQuestion();
 
         if (q == null) {
@@ -133,7 +172,6 @@ public class MainController {
     private void updateHangmanView() {
         String masked = hangmanModel.getMaskedWord();
 
-        // Ersetzt Unterstriche durch Bindestriche für die Anzeige
         if (masked != null) {
             masked = masked.replace('_', '-');
         }
