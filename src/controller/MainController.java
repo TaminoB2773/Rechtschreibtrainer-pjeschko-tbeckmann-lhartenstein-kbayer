@@ -15,17 +15,73 @@ public class MainController {
     private MainFrame frame;
     private final int HANGMAN_MAX_TRIES = 8;
 
+    // LOGIN
+    private LoginModel loginModel;
+    private LoginView loginView;
+    private String loggedInUser;
+
     public MainController() {
         pool = new QuestionPool();
         hangmanModel = new HangmanModel();
         quizModel = new QuizModel(pool);
         fileManager = new QuestionFileManager();
+
+        // LOGIN
+        loginModel = new LoginModel();
     }
 
     public void startApp() {
-        frame = new MainFrame(this);
-        loadQuestionsFromFile();
-        showManage();
+        showLogin();
+    }
+
+    // --- LOGIN ---
+
+    public void showLogin() {
+        loginView = new LoginView();
+        loginView.setVisible(true);
+
+        loginView.getBtnLogin().addActionListener(e -> handleLogin());
+        loginView.getBtnRegister().addActionListener(e -> handleRegister());
+    }
+
+    private void handleLogin() {
+        String user = loginView.getUsername();
+        String pass = loginView.getPassword();
+
+        if (loginModel.authenticate(user, pass)) {
+            loggedInUser = user;
+            loginView.dispose();
+
+            frame = new MainFrame(this);
+            loadQuestionsFromFile();
+            showManage();
+        } else {
+            loginView.showMessage(
+                    "Login fehlgeschlagen",
+                    "Benutzername oder Passwort falsch",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    private void handleRegister() {
+        String user = loginView.getUsername();
+        String pass = loginView.getPassword();
+
+        if (loginModel.register(user, pass)) {
+            loginView.showMessage(
+                    "Registrierung",
+                    "Registrierung erfolgreich – jetzt einloggen",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+            loginView.clearFields();
+        } else {
+            loginView.showMessage(
+                    "Registrierung fehlgeschlagen",
+                    "Benutzer existiert bereits oder Eingabe leer",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
 
     // --- NAVIGATION ---
@@ -84,7 +140,6 @@ public class MainController {
 
         frame.getQuizPanel().showQuestion(q.getQuestionText());
 
-        // FIX: Hier wird geprüft, ob ein Bild angezeigt werden muss
         if (q instanceof ImageQuestion) {
             frame.getQuizPanel().showImage(((ImageQuestion) q).getImagePath());
         } else {
@@ -133,7 +188,6 @@ public class MainController {
     private void updateHangmanView() {
         String masked = hangmanModel.getMaskedWord();
 
-        // Ersetzt Unterstriche durch Bindestriche für die Anzeige
         if (masked != null) {
             masked = masked.replace('_', '-');
         }
@@ -204,5 +258,10 @@ public class MainController {
 
     private boolean isValidText(String s) {
         return s != null && !s.trim().isEmpty();
+    }
+
+    // Optional: falls du später im UI "User anzeigen" willst
+    public String getLoggedInUser() {
+        return loggedInUser;
     }
 }
