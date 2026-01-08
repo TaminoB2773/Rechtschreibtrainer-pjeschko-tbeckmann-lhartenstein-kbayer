@@ -15,7 +15,9 @@ public class HangmanModel {
         revealedChars = new char[answer.length()];
 
         for(int i = 0; i < maxTries; i++) {
-            revealedChars[i] = '_';
+            if(i<revealedChars.length) {
+                revealedChars[i] = '_';
+            }
         }
         usedLetters = new char[0];
         usedCount = 0;
@@ -75,4 +77,25 @@ public class HangmanModel {
         return triesLeft <= 0 && !isWon();
     }
 
+    public String getMaskedWord() {
+        String maskedWord = "";
+        for (int i = 0; i < revealedChars.length; i++) {
+            if(revealedChars[i] != '_') {
+                maskedWord += revealedChars[i];
+            }
+        }return maskedWord;
+    }
+
+    public String getUsedLetters() {
+        String usedLettersString = "";
+        for (int i = 0; i < usedCount; i++) {
+            if (usedLetters[i] != '_') {
+                usedLettersString += usedLetters[i];
+            }
+        }return usedLettersString;
+    }
+
+    public int getTriesLeft() {
+        return triesLeft;
+    }
 }

@@ -5,6 +5,7 @@ import controller.QuestionFileManager;
 import view.*;
 
 import javax.swing.*;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 
 public class MainController {
@@ -24,11 +25,8 @@ public class MainController {
     }
 
     public void startApp() {
-        pool.addQuestion(new TextQuestion("Schreibe richtig: Hund", "Hund"));
-        pool.addQuestion(new TextQuestion("Schreibe richtig: Katze", "Katze"));
-        pool.addQuestion(new ImageQuestion("Was siehst du? (Bildfrage)", "Hund", "img/hund.png"));
-
         frame = new MainFrame(this);
+        loadQuestionsFromFile();
         showManage();
     }
 
@@ -148,6 +146,7 @@ public class MainController {
 
         if (correct) {
             frame.getQuizPanel().showResult("Richtig!");
+            quizNext();
         } else {
             frame.getQuizPanel().showResult("Falsch! Richtige Antwort: " + current.getCorrectAnswer());
         }

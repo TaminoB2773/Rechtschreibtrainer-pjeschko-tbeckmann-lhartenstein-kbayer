@@ -149,4 +149,8 @@ public class QuestionPool {
         }
         questions = bigger;
     }
+
+    public Question getRandomQuestion() {
+        return questions[(int) (Math.random() * count)];
+    }
 }

@@ -5,7 +5,7 @@ public abstract class Question {
     protected String correctAnswer;
 
     public Question(String questionText, String correctAnswer) {
-        this.correctAnswer = questionText;
+        this.correctAnswer = correctAnswer;
         this.questionText = questionText;
     }
 
