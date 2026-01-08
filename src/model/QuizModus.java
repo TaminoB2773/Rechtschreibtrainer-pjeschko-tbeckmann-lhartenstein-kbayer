@@ -1,83 +1,104 @@
 package model;
 
-public class
-QuizModus {
+import java.util.ArrayList;
+import java.util.List;
 
-    private QuestionPool pool;
+public class QuizModus {
+
+    private Question[] quizQuestions;
+    private int quizCount;
+
     private int currentIndex;
     private int correctCount;
-    private int wrongCount;
+    private List<Question> wrongQuestions;
 
-    /**
-     * Konstruktor: Initialisiert das QuizModel mit einem QuestionPool.
-     */
+    private final int MAX_QUESTIONS = 10;
+
     public QuizModus(QuestionPool pool) {
-        this.pool = pool;
-        this.currentIndex = 0; // Beginne bei der ersten Frage
+        buildQuizList(pool);
+        this.currentIndex = 0;
         this.correctCount = 0;
-        this.wrongCount = 0;
+        this.wrongQuestions = new ArrayList<>();
     }
 
-    /**
-     * Gibt die aktuell gestellte Frage zurück.
-     * @return aktuelle Question oder null, wenn keine mehr vorhanden ist
-     */
-    public Question getCurrentQuestion() {
-        if (pool == null || pool.size() == 0 || currentIndex >= pool.size()) {
-            return null; // Keine Fragen im Pool oder Quiz beendet
+    private void buildQuizList(QuestionPool pool) {
+        if (pool == null || pool.size() == 0) {
+            quizQuestions = new Question[0];
+            quizCount = 0;
+            return;
         }
-        return pool.getQuestion(currentIndex);
+
+        // 1) nur TEXT + IMAGE zählen
+        int count = 0;
+        for (int i = 0; i < pool.size(); i = i + 1) {
+            Question q = pool.getQuestion(i);
+            if (q instanceof TextQuestion || q instanceof ImageQuestion) {
+                count = count + 1;
+            }
+        }
+
+        // 2) kopieren
+        Question[] temp = new Question[count];
+        int idx = 0;
+        for (int i = 0; i < pool.size(); i = i + 1) {
+            Question q = pool.getQuestion(i);
+            if (q instanceof TextQuestion || q instanceof ImageQuestion) {
+                temp[idx] = q;
+                idx = idx + 1;
+            }
+        }
+
+        // 3) Limit (max 10)
+        quizCount = Math.min(temp.length, MAX_QUESTIONS);
+        quizQuestions = new Question[quizCount];
+        for (int i = 0; i < quizCount; i = i + 1) {
+            quizQuestions[i] = temp[i];
+        }
     }
 
-    /**
-     * Prüft die Antwort des Benutzers auf die aktuelle Frage.
-     * @param input Benutzereingabe
-     * @return true, wenn die Antwort korrekt ist, sonst false
-     */
+    public int getQuestionCount() {
+        return quizCount;
+    }
+
+    public int getTotalCount() {
+        return quizCount;
+    }
+
+    public Question getCurrentQuestion() {
+        if (quizCount == 0 || currentIndex < 0 || currentIndex >= quizCount) {
+            return null;
+        }
+        return quizQuestions[currentIndex];
+    }
+
     public boolean checkAnswer(String input) {
         Question q = getCurrentQuestion();
-        if (q == null) {
-            return false; // Keine aktuelle Frage
-        }
+        if (q == null) return false;
 
         boolean result = q.checkAnswer(input);
         if (result) {
-            correctCount++;
+            correctCount = correctCount + 1;
         } else {
-            wrongCount++;
+            if (!wrongQuestions.contains(q)) {
+                wrongQuestions.add(q);
+            }
         }
         return result;
     }
 
-    /**
-     * Wechselt zur nächsten Frage.
-     */
     public void nextQuestion() {
-        currentIndex++;
+        currentIndex = currentIndex + 1;
     }
 
-    /**
-     * Gibt die Gesamtanzahl der Fragen im Pool zurück.
-     */
-    public int size() {
-        return pool.size();
-    }
-
-    /**
-     * Prüft, ob das Quiz beendet ist.
-     * @return true, wenn alle Fragen beantwortet wurden
-     */
     public boolean isFinished() {
-        return currentIndex >= pool.size();
+        return currentIndex >= quizCount;
     }
 
-    /** Getter für Statistik */
     public int getCorrectCount() {
         return correctCount;
     }
 
-    public int getWrongCount() {
-        return wrongCount;
+    public List<Question> getWrongQuestions() {
+        return wrongQuestions;
     }
 }
-

@@ -13,10 +13,7 @@ public class MainController {
     private QuestionPool pool;
     private HangmanModel hangmanModel;
 
-    // Quiz (deine neue Variante mit Auswertung + Retry)
     private QuizModus quizModus;
-
-    // Anagramm (aus deiner erweiterten Version)
     private AnagramModel anagramModel;
 
     private QuestionFileManager fileManager;
@@ -24,7 +21,6 @@ public class MainController {
     // ----- Views -----
     private MainFrame frame;
 
-    // ----- Const -----
     private final int HANGMAN_MAX_TRIES = 8;
 
     // ----- LOGIN -----
@@ -36,9 +32,8 @@ public class MainController {
         pool = new QuestionPool();
         hangmanModel = new HangmanModel();
 
-        quizModus = new QuizModus(pool);      // wird bei showQuiz sowieso neu gesetzt
+        quizModus = new QuizModus(pool);
         anagramModel = new AnagramModel();
-
         fileManager = new QuestionFileManager();
 
         // LOGIN
@@ -114,18 +109,25 @@ public class MainController {
 
     // ===================== NAVIGATION =====================
 
+
+        frame = new MainFrame(this);
+        showManage();
+    }
+
+    // ---------- Navigation ----------
     public void showManage() {
         frame.showManagePanel();
         updateManageView();
     }
 
     public void showQuiz() {
-        // optional mischen (falls du shuffle hast)
+
         if (pool != null && !pool.isEmpty()) {
-            // pool.shuffle();
+            pool.shuffle(); // wenn du shuffle hast
         }
 
-        // QuizModus neu starten (filtert intern, falls du das so gebaut hast)
+        // WICHTIG: Quiz nur TEXT+IMAGE -> QuizModus filtert intern (siehe unten)
+
         quizModus = new QuizModus(pool);
 
         frame.showQuizPanel();
@@ -141,9 +143,6 @@ public class MainController {
         frame.showAnagramPanel();
         startNewAnagramRound();
     }
-
-    // ===================== MANAGE: ADD / DELETE =====================
-
     public void addTextQuestion(String questionText, String answer) {
         if (!isValidText(questionText) || !isValidText(answer)) {
             JOptionPane.showMessageDialog(frame, "Bitte Frage und Antwort ausfüllen.");
@@ -180,7 +179,6 @@ public class MainController {
         updateManageView();
     }
 
-    // ===================== SAVE / LOAD =====================
 
     public void saveQuestionsToFile() {
         String filename = JOptionPane.showInputDialog(frame, "Dateiname zum Speichern:", "fragen.txt");
@@ -235,6 +233,12 @@ public class MainController {
 
     // ===================== QUIZ (QuizModus) =====================
 
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
+
+    // ---------- QUIZ ----------
     public void quizSubmit(String answer) {
         Question current = quizModus.getCurrentQuestion();
         if (current == null) {
@@ -318,12 +322,26 @@ public class MainController {
         updateQuizView();
     }
 
-    // ===================== HANGMAN =====================
 
+
+        QuestionPool retryPool = new QuestionPool(failures.size());
+        for (Question q : failures) {
+            retryPool.addQuestion(q);
+        }
+
+        if (!retryPool.isEmpty()) {
+            retryPool.shuffle();
+        }
+
+        quizModus = new QuizModus(retryPool);
+        frame.showQuizPanel();
+        updateQuizView();
+    }
+
+    // ---------- HANGMAN ----------
     public void startNewHangmanGame() {
-        // optional mischen
         if (pool != null && !pool.isEmpty()) {
-            // pool.shuffle();
+            pool.shuffle();
         }
 
         Question q = pool.getRandomQuestion();
@@ -354,31 +372,28 @@ public class MainController {
         } else if (hangmanModel.isLost()) {
             frame.getHangmanPanel().setInputsEnabled(false);
 
-            // Falls du getWordToGuess() NICHT hast, lass diese Zeile weg:
-            // frame.getHangmanPanel().showMessage("Verloren! ❌ Das Wort war: " + hangmanModel.getWordToGuess());
-
             frame.getHangmanPanel().showMessage("Verloren! ❌");
         }
     }
 
     private void updateHangmanView() {
+
         String masked = hangmanModel.getMaskedWord();
 
         // Wenn du das "Unterstrich zu Minus" willst:
         if (masked != null) {
             masked = masked.replace('_', '-');
         }
+        frame.getHangmanPanel().showWord(hangmanModel.getMaskedWord());
 
-        frame.getHangmanPanel().showWord(masked);
         frame.getHangmanPanel().showUsedLetters(hangmanModel.getUsedLetters());
         frame.getHangmanPanel().showTries(hangmanModel.getTriesLeft(), HANGMAN_MAX_TRIES);
     }
 
-    // ===================== ANAGRAMM =====================
 
+    // ---------- ANAGRAMM ----------
     public void startNewAnagramRound() {
         Question q = pool.getRandomAnagramQuestion();
-
         if (q == null) {
             frame.getAnagramPanel().showQuestion("Keine passenden Fragen vorhanden.");
             frame.getAnagramPanel().showScrambled("");
@@ -429,8 +444,10 @@ public class MainController {
         return s != null && !s.trim().isEmpty();
     }
 
+
     // Optional: falls du später im UI "User anzeigen" willst
     public String getLoggedInUser() {
         return loggedInUser;
     }
+
 }

@@ -18,3 +18,23 @@ TEXT;Setze ie oder i: L_d ;Lied
 TEXT;Korrigiere den Fehler: Standart;Standard
 IMAGE;Was siehst du?;Hund;img/hund.png
 TEXT;Korrigiere den Fehler: Maschiene;Maschine
+ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Straße
+ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Fuß
+ANAGRAM;Buchstaben-Salat: Ordne zum Wort;groß
+ANAGRAM;Buchstaben-Salat: Ordne zum Wort;heißen
+ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Fluss
+ANAGRAM;Buchstaben-Salat: Ordne zum Wort;müssen
+ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Brief
+ANAGRAM;Buchstaben-Salat: Ordne zum Wort;spielen
+ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Tier
+ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Lied
+ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Standard
+ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Maschine
+ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Katze
+ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Maus
+ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Lehrer
+ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Fenster
+ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Hund
+ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Haus
+ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Ball
+ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Auto

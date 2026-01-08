@@ -9,26 +9,36 @@ public class QuestionManagementPanel extends JPanel {
 
     private final JTextArea taQuestions;
 
+    // --- TextQuestion Inputs ---
     private final JTextField tfTextQuestion;
     private final JTextField tfTextAnswer;
 
+    // --- ImageQuestion Inputs ---
     private final JTextField tfImageQuestion;
     private final JTextField tfImageAnswer;
     private final JTextField tfImagePath;
+
+    // --- AnagramQuestion Inputs ---
+    private final JTextField tfAnaQuestion;
+    private final JTextField tfAnaAnswer;
 
     public QuestionManagementPanel(MainController controller) {
         super(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
+        // LINKS: Fragenliste
         taQuestions = new JTextArea();
         taQuestions.setEditable(false);
         add(new JScrollPane(taQuestions), BorderLayout.CENTER);
 
+        // RECHTS: Eingabe-Bereiche + Aktionen
         JPanel right = new JPanel();
         right.setLayout(new BoxLayout(right, BoxLayout.Y_AXIS));
-        right.setPreferredSize(new Dimension(360, 480));
+        right.setPreferredSize(new Dimension(360, 520));
 
-        // --- TextQuestion Bereich ---
+        // =========================
+        // TEXTQUESTION BEREICH
+        // =========================
         JPanel pText = new JPanel(new GridLayout(0, 1, 6, 6));
         pText.setBorder(BorderFactory.createTitledBorder("TextQuestion"));
 
@@ -37,6 +47,7 @@ public class QuestionManagementPanel extends JPanel {
 
         pText.add(new JLabel("Frage:"));
         pText.add(tfTextQuestion);
+
         pText.add(new JLabel("Antwort:"));
         pText.add(tfTextAnswer);
 
@@ -47,7 +58,9 @@ public class QuestionManagementPanel extends JPanel {
         });
         pText.add(btnAddText);
 
-        // --- ImageQuestion Bereich ---
+        // =========================
+        // IMAGEQUESTION BEREICH
+        // =========================
         JPanel pImg = new JPanel(new GridLayout(0, 1, 6, 6));
         pImg.setBorder(BorderFactory.createTitledBorder("ImageQuestion"));
 
@@ -81,7 +94,31 @@ public class QuestionManagementPanel extends JPanel {
         });
         pImg.add(btnAddImg);
 
-        // --- Aktionen ---
+        // =========================
+        // ANAGRAMQUESTION BEREICH
+        // =========================
+        JPanel pAna = new JPanel(new GridLayout(0, 1, 6, 6));
+        pAna.setBorder(BorderFactory.createTitledBorder("AnagramQuestion"));
+
+        tfAnaQuestion = new JTextField();
+        tfAnaAnswer = new JTextField();
+
+        pAna.add(new JLabel("Frage:"));
+        pAna.add(tfAnaQuestion);
+
+        pAna.add(new JLabel("Antwort (Wort):"));
+        pAna.add(tfAnaAnswer);
+
+        JButton btnAddAna = new JButton("AnagramQuestion hinzufügen");
+        btnAddAna.addActionListener(e -> {
+            controller.addAnagramQuestion(tfAnaQuestion.getText(), tfAnaAnswer.getText());
+            clearAnagramInputs();
+        });
+        pAna.add(btnAddAna);
+
+        // =========================
+        // AKTIONEN BEREICH
+        // =========================
         JPanel pActions = new JPanel(new GridLayout(0, 1, 6, 6));
         pActions.setBorder(BorderFactory.createTitledBorder("Aktionen"));
 
@@ -98,9 +135,12 @@ public class QuestionManagementPanel extends JPanel {
         pActions.add(btnSave);
         pActions.add(btnLoad);
 
+        // Zusammensetzen (rechts)
         right.add(pText);
         right.add(Box.createVerticalStrut(10));
         right.add(pImg);
+        right.add(Box.createVerticalStrut(10));
+        right.add(pAna);
         right.add(Box.createVerticalStrut(10));
         right.add(pActions);
 
@@ -125,6 +165,11 @@ public class QuestionManagementPanel extends JPanel {
         tfImageQuestion.setText("");
         tfImageAnswer.setText("");
         tfImagePath.setText("");
+    }
+
+    private void clearAnagramInputs() {
+        tfAnaQuestion.setText("");
+        tfAnaAnswer.setText("");
     }
 
     private String chooseImageFilePath() {

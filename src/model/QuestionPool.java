@@ -151,6 +151,55 @@ public class QuestionPool {
     }
 
     public Question getRandomQuestion() {
-        return questions[(int) (Math.random() * count)];
+        // Nur TEXT + IMAGE (Anagram NICHT)
+        if (count == 0) {
+            return null;
+        }
+
+        for (int t = 0; t < 50; t = t + 1) {
+            Question q = questions[(int) (Math.random() * count)];
+            if (q instanceof TextQuestion || q instanceof ImageQuestion) {
+                return q;
+            }
+        }
+
+        // Fallback: erste passende
+        for (int i = 0; i < count; i = i + 1) {
+            if (questions[i] instanceof TextQuestion || questions[i] instanceof ImageQuestion) {
+                return questions[i];
+            }
+        }
+        return null;
     }
+
+    public Question getRandomAnagramQuestion() {
+        if (count == 0) {
+            return null;
+        }
+
+        for (int t = 0; t < 50; t = t + 1) {
+            Question q = questions[(int) (Math.random() * count)];
+            if (q instanceof AnagramQuestion) {
+                return q;
+            }
+        }
+
+        for (int i = 0; i < count; i = i + 1) {
+            if (questions[i] instanceof AnagramQuestion) {
+                return questions[i];
+            }
+        }
+        return null;
+    }
+    public void shuffle() {
+        // Fisher-Yates Shuffle
+        for (int i = count - 1; i > 0; i = i - 1) {
+            int j = (int) (Math.random() * (i + 1));
+
+            Question tmp = questions[i];
+            questions[i] = questions[j];
+            questions[j] = tmp;
+        }
+    }
+
 }
