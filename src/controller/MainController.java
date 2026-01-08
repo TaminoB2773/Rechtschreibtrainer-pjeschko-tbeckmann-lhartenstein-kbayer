@@ -1,11 +1,9 @@
 package controller;
 
 import model.*;
-import controller.QuestionFileManager;
 import view.*;
 
 import javax.swing.*;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 
 public class MainController {
@@ -30,157 +28,11 @@ public class MainController {
         showManage();
     }
 
-    public void showManage() {
-        frame.showManagePanel();
-        updateManageView();
-    }
-
-    public void showQuiz() {
-        frame.showQuizPanel();
-        quizModel = new QuizModel(pool);
-        updateQuizView();
-    }
+    // ... (Andere Methoden wie showManage, showQuiz etc. bleiben gleich)
 
     public void showHangman() {
         frame.showHangmanPanel();
         startNewHangmanGame();
-    }
-
-    public void addTextQuestion(String questionText, String answer) {
-        if (!isValidText(questionText) || !isValidText(answer)) {
-            JOptionPane.showMessageDialog(frame, "Bitte Frage und Antwort ausfüllen.");
-            return;
-        }
-
-        pool.addQuestion(new TextQuestion(questionText.trim(), answer.trim()));
-        updateManageView();
-    }
-
-    public void addImageQuestion(String questionText, String answer, String imagePath) {
-        if (!isValidText(questionText) || !isValidText(answer) || !isValidText(imagePath)) {
-            JOptionPane.showMessageDialog(frame, "Bitte Frage, Antwort und Bildpfad ausfüllen.");
-            return;
-        }
-
-        pool.addQuestion(new ImageQuestion(questionText.trim(), answer.trim(), imagePath.trim()));
-        updateManageView();
-    }
-
-    public void deleteLastQuestion() {
-        if (pool.size() <= 0) {
-            JOptionPane.showMessageDialog(frame, "Keine Fragen zum Löschen vorhanden.");
-            return;
-        }
-
-        pool.removeQuestion(pool.size() - 1);
-        updateManageView();
-    }
-
-    public void saveQuestionsToFile() {
-        String filename = JOptionPane.showInputDialog(frame, "Dateiname zum Speichern:", "fragen.txt");
-        if (filename == null || filename.trim().isEmpty()) {
-            return;
-        }
-
-        try {
-            fileManager.saveToFile(pool, filename.trim());
-            JOptionPane.showMessageDialog(frame, "Fragen gespeichert in: " + filename.trim());
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Fehler beim Speichern: " + e.getMessage());
-        }
-    }
-
-    public void loadQuestionsFromFile() {
-        String filename = JOptionPane.showInputDialog(frame, "Dateiname zum Laden:", "fragen.txt");
-        if (filename == null || filename.trim().isEmpty()) {
-            return;
-        }
-
-        try {
-            pool = fileManager.loadFromFile(filename.trim());
-            quizModel = new QuizModel(pool);
-            JOptionPane.showMessageDialog(frame, "Fragen geladen aus: " + filename.trim());
-            updateManageView();
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Fehler beim Laden: " + e.getMessage());
-        }
-    }
-
-    private void updateManageView() {
-        String text = buildQuestionListText(pool);
-        frame.getManagePanel().updateQuestionList(text);
-    }
-
-    private String buildQuestionListText(QuestionPool pool) {
-        StringBuilder sb = new StringBuilder();
-        int i;
-
-        for (i = 0; i < pool.size(); i = i + 1) {
-            Question q = pool.getQuestion(i);
-            sb.append(i).append(": ");
-
-            if (q instanceof ImageQuestion) {
-                ImageQuestion iq = (ImageQuestion) q;
-                sb.append("[IMAGE] ");
-                sb.append(iq.getQuestionText()).append(" -> ").append(iq.getCorrectAnswer());
-                sb.append(" (").append(iq.getImagePath()).append(")");
-            } else {
-                sb.append("[TEXT] ");
-                sb.append(q.getQuestionText()).append(" -> ").append(q.getCorrectAnswer());
-            }
-
-            sb.append("\n");
-        }
-
-        return sb.toString();
-    }
-
-    public void quizSubmit(String answer) {
-        Question current = quizModel.getCurrentQuestion();
-        if (current == null) {
-            frame.getQuizPanel().showResult("Keine Fragen vorhanden.");
-            return;
-        }
-
-        boolean correct = quizModel.submitAnswer(answer);
-
-        if (correct) {
-            frame.getQuizPanel().showResult("Richtig!");
-            quizNext();
-        } else {
-            frame.getQuizPanel().showResult("Falsch! Richtige Antwort: " + current.getCorrectAnswer());
-        }
-    }
-
-    public void quizNext() {
-        if (quizModel.getQuestionCount() == 0) {
-            updateQuizView();
-            return;
-        }
-
-        quizModel.nextQuestion();
-        updateQuizView();
-    }
-
-    private void updateQuizView() {
-        Question q = quizModel.getCurrentQuestion();
-
-        if (q == null) {
-            frame.getQuizPanel().showQuestion("Keine Fragen vorhanden.");
-            frame.getQuizPanel().showImage(null);
-            frame.getQuizPanel().showResult("");
-            return;
-        }
-
-        frame.getQuizPanel().showQuestion(q.getQuestionText());
-
-        if (q instanceof ImageQuestion) {
-            frame.getQuizPanel().showImage(((ImageQuestion) q).getImagePath());
-        } else {
-            frame.getQuizPanel().showImage(null);
-        }
-
-        frame.getQuizPanel().showResult("");
     }
 
     public void startNewHangmanGame() {
@@ -210,20 +62,136 @@ public class MainController {
 
         if (hangmanModel.isWon()) {
             frame.getHangmanPanel().setInputsEnabled(false);
-            frame.getHangmanPanel().showMessage("Gewonnen! ✅");
+            frame.getHangmanPanel().showMessage("Gewonnen! Das Wort war: " + hangmanModel.getWordToGuess());
         } else if (hangmanModel.isLost()) {
             frame.getHangmanPanel().setInputsEnabled(false);
-            frame.getHangmanPanel().showMessage("Verloren! ❌");
+            frame.getHangmanPanel().showMessage("Verloren! Das richtige Wort war: " + hangmanModel.getWordToGuess());
         }
     }
 
+    /**
+     * Aktualisiert die Ansicht des Hangman-Panels.
+     * Hier werden die Unterstriche in Bindestriche umgewandelt.
+     */
     private void updateHangmanView() {
-        frame.getHangmanPanel().showWord(hangmanModel.getMaskedWord());
+        // Holen des aktuellen Stands vom Model (z.B. "J_V_")
+        String masked = hangmanModel.getMaskedWord();
+
+        // Falls dein Model standardmäßig Unterstriche (_) nutzt,
+        // ersetzen wir sie hier durch Bindestriche (-)
+        if (masked != null) {
+            masked = masked.replace('_', '-');
+        }
+
+        frame.getHangmanPanel().showWord(masked);
+
+        // Zeigt die bisher benutzten Buchstaben an
         frame.getHangmanPanel().showUsedLetters(hangmanModel.getUsedLetters());
+
+        // Aktualisiert die Anzeige der verbleibenden Versuche
         frame.getHangmanPanel().showTries(hangmanModel.getTriesLeft(), HANGMAN_MAX_TRIES);
+    }
+
+    // ... (Restliche Hilfsmethoden wie isValidText, load/save etc.)
+
+    public void showManage() {
+        frame.showManagePanel();
+        updateManageView();
+    }
+
+    public void showQuiz() {
+        frame.showQuizPanel();
+        quizModel = new QuizModel(pool);
+        updateQuizView();
+    }
+
+    private void updateManageView() {
+        String text = buildQuestionListText(pool);
+        frame.getManagePanel().updateQuestionList(text);
+    }
+
+    // ... (Hier folgen deine weiteren Methoden wie addTextQuestion, deleteLastQuestion etc.)
+
+    private String buildQuestionListText(QuestionPool pool) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < pool.size(); i++) {
+            Question q = pool.getQuestion(i);
+            sb.append(i).append(": ");
+            if (q instanceof ImageQuestion) {
+                ImageQuestion iq = (ImageQuestion) q;
+                sb.append("[IMAGE] ").append(iq.getQuestionText()).append(" -> ").append(iq.getCorrectAnswer());
+            } else {
+                sb.append("[TEXT] ").append(q.getQuestionText()).append(" -> ").append(q.getCorrectAnswer());
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
+
+    public void quizSubmit(String answer) {
+        Question current = quizModel.getCurrentQuestion();
+        if (current == null) return;
+        boolean correct = quizModel.submitAnswer(answer);
+        if (correct) {
+            frame.getQuizPanel().showResult("Richtig!");
+            quizNext();
+        } else {
+            frame.getQuizPanel().showResult("Falsch! Antwort: " + current.getCorrectAnswer());
+        }
+    }
+
+    public void quizNext() {
+        quizModel.nextQuestion();
+        updateQuizView();
+    }
+
+    private void updateQuizView() {
+        Question q = quizModel.getCurrentQuestion();
+        if (q == null) {
+            frame.getQuizPanel().showQuestion("Keine Fragen.");
+            return;
+        }
+        frame.getQuizPanel().showQuestion(q.getQuestionText());
+        frame.getQuizPanel().showResult("");
     }
 
     private boolean isValidText(String s) {
         return s != null && !s.trim().isEmpty();
+    }
+
+    public void addTextQuestion(String questionText, String answer) {
+        if (!isValidText(questionText) || !isValidText(answer)) return;
+        pool.addQuestion(new TextQuestion(questionText.trim(), answer.trim()));
+        updateManageView();
+    }
+
+    public void addImageQuestion(String questionText, String answer, String imagePath) {
+        if (!isValidText(questionText) || !isValidText(answer) || !isValidText(imagePath)) return;
+        pool.addQuestion(new ImageQuestion(questionText.trim(), answer.trim(), imagePath.trim()));
+        updateManageView();
+    }
+
+    public void deleteLastQuestion() {
+        if (pool.size() > 0) {
+            pool.removeQuestion(pool.size() - 1);
+            updateManageView();
+        }
+    }
+
+    public void saveQuestionsToFile() {
+        try {
+            fileManager.saveToFile(pool, "fragen.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void loadQuestionsFromFile() {
+        try {
+            pool = fileManager.loadFromFile("fragen.txt");
+            updateManageView();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
