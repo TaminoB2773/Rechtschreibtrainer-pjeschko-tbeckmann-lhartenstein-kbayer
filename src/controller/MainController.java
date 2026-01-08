@@ -15,34 +15,28 @@ public class MainController {
     private QuizModus quizModus;
     private AnagramModel anagramModel;
     private QuestionFileManager fileManager;
+    private LoginModel loginModel;
 
     // ----- Views -----
     private MainFrame frame;
+    private LoginView loginView;
+
+    // ----- State -----
+    private String loggedInUser;
+    private boolean isAdmin = false; // Speichert, ob der aktuelle User Admin-Rechte hat
 
     private final int HANGMAN_MAX_TRIES = 8;
     private final String DEFAULT_FILE = "fragen.txt";
 
-    // ----- LOGIN -----
-    private LoginModel loginModel;
-    private LoginView loginView;
-    private String loggedInUser;
-
     public MainController() {
         pool = new QuestionPool();
         hangmanModel = new HangmanModel();
-        quizModus = new QuizModus(pool);
         anagramModel = new AnagramModel();
         fileManager = new QuestionFileManager();
-
-        // LOGIN
         loginModel = new LoginModel();
     }
 
     public void startApp() {
-        // Automatisches Laden beim Start
-        try {
-            pool = fileManager.loadFromFile(DEFAULT_FILE);
-        // Start immer mit Login
         showLogin();
     }
 
@@ -60,23 +54,21 @@ public class MainController {
         String user = loginView.getUsername();
         String pass = loginView.getPassword();
 
+        // 1. Authentifizierung prüfen
         if (loginModel.authenticate(user, pass)) {
             loggedInUser = user;
+
+            // 2. Admin-Check: Ist es der Account "admin" mit Passwort "admin"?
+            isAdmin = user.equalsIgnoreCase("admin") && pass.equals("admin");
+
             loginView.dispose();
 
-            // Hauptfenster starten
+            // 3. Hauptfenster initialisieren
             frame = new MainFrame(this);
-
-            // Fragen laden (ohne Dialog beim Start)
-            loadQuestionsAtStartup("fragen.txt");
-
-            showManage();
+            loadQuestionsAtStartup(DEFAULT_FILE);
+            showHome();
         } else {
-            loginView.showMessage(
-                    "Login fehlgeschlagen",
-                    "Benutzername oder Passwort falsch",
-                    JOptionPane.ERROR_MESSAGE
-            );
+            loginView.showMessage("Login fehlgeschlagen", "Benutzername oder Passwort falsch", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -84,19 +76,17 @@ public class MainController {
         String user = loginView.getUsername();
         String pass = loginView.getPassword();
 
+        // Verhindere, dass sich jemand als "admin" registriert, um den Hardcoded-Check zu umgehen
+        if (user.equalsIgnoreCase("admin")) {
+            loginView.showMessage("Fehler", "Dieser Benutzername ist reserviert.", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         if (loginModel.register(user, pass)) {
-            loginView.showMessage(
-                    "Registrierung",
-                    "Registrierung erfolgreich – jetzt einloggen",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
+            loginView.showMessage("Registrierung", "Erfolgreich – bitte jetzt einloggen", JOptionPane.INFORMATION_MESSAGE);
             loginView.clearFields();
         } else {
-            loginView.showMessage(
-                    "Registrierung fehlgeschlagen",
-                    "Benutzer existiert bereits oder Eingabe leer",
-                    JOptionPane.ERROR_MESSAGE
-            );
+            loginView.showMessage("Fehler", "Benutzer existiert bereits oder Felder leer", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -105,40 +95,35 @@ public class MainController {
             pool = fileManager.loadFromFile(filename);
         } catch (IOException e) {
             pool = new QuestionPool();
-            System.out.println("Keine Standarddatei gefunden, starte mit leerem Pool.");
+            System.out.println("Keine Standarddatei gefunden, starte leer.");
         }
-
-    // ===================== NAVIGATION =====================
-
-
-        frame = new MainFrame(this);
-        showHome();
     }
 
-    // ---------- NAVIGATION ----------
+    // ===================== NAVIGATION =====================
 
     public void showHome() {
         frame.showHomePanel();
     }
 
     public void showManage() {
+        // SICHERHEITSPRÜFUNG: Nur Admins dürfen rein
+        if (!isAdmin) {
+            JOptionPane.showMessageDialog(frame,
+                    "Zugriff verweigert! ❌\nNur der Administrator darf Fragen verwalten.",
+                    "Keine Berechtigung",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         frame.showManagePanel();
         updateManageView();
     }
 
     public void showQuiz() {
         if (pool == null || pool.isEmpty()) {
-            JOptionPane.showMessageDialog(frame, "Bitte zuerst Fragen hinzufügen oder laden!");
+            JOptionPane.showMessageDialog(frame, "Bitte zuerst Fragen hinzufügen!");
             return;
         }
         pool.shuffle();
-
-        if (pool != null && !pool.isEmpty()) {
-            pool.shuffle(); // wenn du shuffle hast
-        }
-
-        // WICHTIG: Quiz nur TEXT+IMAGE -> QuizModus filtert intern (siehe unten)
-
         quizModus = new QuizModus(pool);
         frame.showQuizPanel();
         updateQuizView();
@@ -154,103 +139,16 @@ public class MainController {
         startNewAnagramRound();
     }
 
+    // ===================== QUIZ LOGIK =====================
 
-    // ---------- QUIZ LOGIK ----------
-
-    public void addTextQuestion(String questionText, String answer) {
-        if (!isValidText(questionText) || !isValidText(answer)) {
-            JOptionPane.showMessageDialog(frame, "Bitte Frage und Antwort ausfüllen.");
-            return;
-        }
-        pool.addQuestion(new TextQuestion(questionText.trim(), answer.trim()));
-        updateManageView();
-    }
-
-    public void addImageQuestion(String questionText, String answer, String imagePath) {
-        if (!isValidText(questionText) || !isValidText(answer) || !isValidText(imagePath)) {
-            JOptionPane.showMessageDialog(frame, "Bitte Frage, Antwort und Bildpfad ausfüllen.");
-            return;
-        }
-        pool.addQuestion(new ImageQuestion(questionText.trim(), answer.trim(), imagePath.trim()));
-        updateManageView();
-    }
-
-    public void addAnagramQuestion(String questionText, String answer) {
-        if (!isValidText(questionText) || !isValidText(answer)) {
-            JOptionPane.showMessageDialog(frame, "Bitte Frage und Antwort ausfüllen.");
-            return;
-        }
-        pool.addQuestion(new AnagramQuestion(questionText.trim(), answer.trim()));
-        updateManageView();
-    }
-
-    public void deleteLastQuestion() {
-        if (pool.size() <= 0) {
-            JOptionPane.showMessageDialog(frame, "Keine Fragen zum Löschen vorhanden.");
-            return;
-        }
-        pool.removeQuestion(pool.size() - 1);
-        updateManageView();
-    }
-
-
-    public void saveQuestionsToFile() {
-        String filename = JOptionPane.showInputDialog(frame, "Dateiname zum Speichern:", "fragen.txt");
-        if (filename == null || filename.trim().isEmpty()) return;
-
-        try {
-            fileManager.saveToFile(pool, filename.trim());
-            JOptionPane.showMessageDialog(frame, "Fragen gespeichert in: " + filename.trim());
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Fehler beim Speichern: " + e.getMessage());
-        }
-    }
-
-    public void loadQuestionsFromFile() {
-        String filename = JOptionPane.showInputDialog(frame, "Dateiname zum Laden:", "fragen.txt");
-        if (filename == null || filename.trim().isEmpty()) return;
-
-        try {
-            pool = fileManager.loadFromFile(filename.trim());
-            JOptionPane.showMessageDialog(frame, "Fragen geladen aus: " + filename.trim());
-            updateManageView();
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Fehler beim Laden: " + e.getMessage());
-        }
-    }
-
-    private void updateManageView() {
-        frame.getManagePanel().updateQuestionList(buildQuestionListText(pool));
-    }
-
-    private String buildQuestionListText(QuestionPool pool) {
-        StringBuilder sb = new StringBuilder();
-
-        for (int i = 0; i < pool.size(); i = i + 1) {
-            Question q = pool.getQuestion(i);
-            sb.append(i).append(": ");
-
-            if (q instanceof ImageQuestion) {
-                ImageQuestion iq = (ImageQuestion) q;
-                sb.append("[IMAGE] ").append(iq.getQuestionText()).append(" -> ").append(iq.getCorrectAnswer());
-                sb.append(" (").append(iq.getImagePath()).append(")");
-            } else if (q instanceof AnagramQuestion) {
-                sb.append("[ANAGRAM] ").append(q.getQuestionText()).append(" -> ").append(q.getCorrectAnswer());
-            } else {
-                sb.append("[TEXT] ").append(q.getQuestionText()).append(" -> ").append(q.getCorrectAnswer());
-            }
-
-            sb.append("\n");
-        }
-        return sb.toString();
-    }
-
-    // ---------- QUIZ ----------
     public void quizSubmit(String answer) {
         Question current = quizModus.getCurrentQuestion();
         if (current == null) return;
 
         boolean correct = quizModus.checkAnswer(answer);
+
+        // Statistik in DB speichern
+        loginModel.updateStats(loggedInUser, correct);
 
         if (correct) {
             frame.getQuizPanel().showResult("Richtig! ✅");
@@ -258,7 +156,6 @@ public class MainController {
             frame.getQuizPanel().showResult("Falsch! ❌ Lösung: " + current.getCorrectAnswer());
         }
 
-        // Timer für automatischen Übergang (1,5 Sekunden Pause)
         Timer timer = new Timer(1500, e -> quizNext());
         timer.setRepeats(false);
         timer.start();
@@ -277,7 +174,7 @@ public class MainController {
         Question q = quizModus.getCurrentQuestion();
         if (q == null) return;
 
-        int currentNum = quizModus.getCorrectCount() + quizModus.getWrongQuestions().size() + 1;
+        int currentNum = (quizModus.getCorrectCount() + quizModus.getWrongQuestions().size()) + 1;
         String progress = "Frage " + currentNum + " von " + quizModus.getTotalCount();
 
         frame.getQuizPanel().showQuestion(progress + "\n\n" + q.getQuestionText());
@@ -307,34 +204,17 @@ public class MainController {
         }
 
         QuestionPool retryPool = new QuestionPool(failures.size());
-        for (Question q : failures) retryPool.addQuestion(q);
+        for (Question q : failures) {
+            retryPool.addQuestion(q);
+        }
         retryPool.shuffle();
-        for (Question q : failures) {
-            retryPool.addQuestion(q);
-        }
-
-        if (!retryPool.isEmpty()) {
-            // retryPool.shuffle();
-        }
-
-        quizModus = new QuizModus(retryPool);
-        frame.showQuizPanel();
-        updateQuizView();
-
-        for (Question q : failures) {
-            retryPool.addQuestion(q);
-        }
-
-        if (!retryPool.isEmpty()) {
-            retryPool.shuffle();
-        }
 
         quizModus = new QuizModus(retryPool);
         frame.showQuizPanel();
         updateQuizView();
     }
 
-    // ---------- HANGMAN LOGIK ----------
+    // ===================== HANGMAN LOGIK =====================
 
     public void startNewHangmanGame() {
         if (pool == null || pool.isEmpty()) {
@@ -343,6 +223,8 @@ public class MainController {
         }
         pool.shuffle();
         Question q = pool.getRandomQuestion();
+        if (q == null) return;
+
         hangmanModel.startGame(q, HANGMAN_MAX_TRIES);
         frame.getHangmanPanel().setInputsEnabled(true);
         updateHangmanView();
@@ -359,31 +241,18 @@ public class MainController {
             frame.getHangmanPanel().showMessage("Gewonnen! ✅ Lösung: " + hangmanModel.getWordToGuess());
         } else if (hangmanModel.isLost()) {
             frame.getHangmanPanel().setInputsEnabled(false);
-
-            frame.getHangmanPanel().showMessage("Verloren! ❌");
+            frame.getHangmanPanel().showMessage("Verloren! ❌ Lösung: " + hangmanModel.getWordToGuess());
         }
     }
 
     private void updateHangmanView() {
-        String masked = hangmanModel.getMaskedWord(); // z.B. "B_UM"
-
-        if (masked != null) {
-            // Wir machen aus "B_UM" -> "B _ U M"
-            // Jeder Buchstabe/Unterstrich bekommt ein Leerzeichen danach
-            StringBuilder spacedWord = new StringBuilder();
-            for (char c : masked.toCharArray()) {
-                spacedWord.append(c).append(" ");
-            }
-            masked = spacedWord.toString().trim();
-        }
-
-        // Jetzt wird "B _ _ M" oder "_ _ _ _" im Label angezeigt
+        String masked = hangmanModel.getMaskedWord();
         frame.getHangmanPanel().showWord(masked);
         frame.getHangmanPanel().showUsedLetters(hangmanModel.getUsedLetters());
         frame.getHangmanPanel().showTries(hangmanModel.getTriesLeft(), HANGMAN_MAX_TRIES);
     }
 
-    // ---------- ANAGRAMM LOGIK ----------
+    // ===================== ANAGRAMM LOGIK =====================
 
     public void startNewAnagramRound() {
         if (pool == null || pool.isEmpty()) {
@@ -418,11 +287,12 @@ public class MainController {
             frame.getAnagramPanel().showStats(anagramModel.getCorrectCount(), anagramModel.getWrongCount());
         }
     }
+
     public void anagramNext() {
         startNewAnagramRound();
     }
 
-    // ---------- MANAGEMENT ----------
+    // ===================== MANAGEMENT =====================
 
     public void addTextQuestion(String q, String a) {
         if (!isValidText(q) || !isValidText(a)) return;
@@ -452,7 +322,7 @@ public class MainController {
     public void saveQuestionsToFile() {
         try {
             fileManager.saveToFile(pool, DEFAULT_FILE);
-            JOptionPane.showMessageDialog(frame, "Speichern erfolgreich!");
+            JOptionPane.showMessageDialog(frame, "Gespeichert in " + DEFAULT_FILE);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(frame, "Fehler: " + e.getMessage());
         }
@@ -462,9 +332,9 @@ public class MainController {
         try {
             pool = fileManager.loadFromFile(DEFAULT_FILE);
             updateManageView();
-            JOptionPane.showMessageDialog(frame, "Fragen geladen!");
+            JOptionPane.showMessageDialog(frame, "Fragen aus " + DEFAULT_FILE + " geladen.");
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Fehler: " + e.getMessage());
+            JOptionPane.showMessageDialog(frame, "Fehler beim Laden.");
         }
     }
 
@@ -482,10 +352,11 @@ public class MainController {
         return s != null && !s.trim().isEmpty();
     }
 
-
-    // Optional: falls du später im UI "User anzeigen" willst
     public String getLoggedInUser() {
         return loggedInUser;
     }
 
+    public boolean isAdmin() {
+        return isAdmin;
+    }
 }
