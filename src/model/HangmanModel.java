@@ -14,11 +14,10 @@ public class HangmanModel {
         String answer = q.getCorrectAnswer().toUpperCase();
         revealedChars = new char[answer.length()];
 
-        for(int i = 0; i < maxTries; i++) {
-            if(i<revealedChars.length) {
-                revealedChars[i] = '_';
-            }
+        for (int i = 0; i < revealedChars.length; i = i + 1) {
+            revealedChars[i] = '_';
         }
+
         usedLetters = new char[0];
         usedCount = 0;
     }
@@ -80,9 +79,7 @@ public class HangmanModel {
     public String getMaskedWord() {
         String maskedWord = "";
         for (int i = 0; i < revealedChars.length; i++) {
-            if(revealedChars[i] != '_') {
-                maskedWord += revealedChars[i];
-            }
+            maskedWord += revealedChars[i];
         }return maskedWord;
     }
 

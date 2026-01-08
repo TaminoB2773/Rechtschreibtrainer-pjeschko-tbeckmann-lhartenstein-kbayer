@@ -1,11 +1,9 @@
 package controller;
 
 import model.*;
-import controller.QuestionFileManager;
 import view.*;
 
 import javax.swing.*;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 
 public class MainController {
@@ -13,23 +11,37 @@ public class MainController {
     private QuestionPool pool;
     private HangmanModel hangmanModel;
     private QuizModel quizModel;
+    private AnagramModel anagramModel;
+
     private QuestionFileManager fileManager;
     private MainFrame frame;
+
     private final int HANGMAN_MAX_TRIES = 8;
 
     public MainController() {
         pool = new QuestionPool();
         hangmanModel = new HangmanModel();
         quizModel = new QuizModel(pool);
+        anagramModel = new AnagramModel();
         fileManager = new QuestionFileManager();
     }
 
     public void startApp() {
+        try {
+            pool = fileManager.loadFromFile("fragen.txt");
+            quizModel = new QuizModel(pool);
+        } catch (IOException e) {
+            // Datei nicht vorhanden → leeres Programm starten
+            pool = new QuestionPool();
+            quizModel = new QuizModel(pool);
+        }
+
         frame = new MainFrame(this);
-        loadQuestionsFromFile();
         showManage();
     }
 
+
+    // ---------- Navigation ----------
     public void showManage() {
         frame.showManagePanel();
         updateManageView();
@@ -46,6 +58,12 @@ public class MainController {
         startNewHangmanGame();
     }
 
+    public void showAnagram() {
+        frame.showAnagramPanel();
+        startNewAnagramRound();
+    }
+
+    // ---------- Manage: hinzufügen ----------
     public void addTextQuestion(String questionText, String answer) {
         if (!isValidText(questionText) || !isValidText(answer)) {
             JOptionPane.showMessageDialog(frame, "Bitte Frage und Antwort ausfüllen.");
@@ -66,6 +84,16 @@ public class MainController {
         updateManageView();
     }
 
+    public void addAnagramQuestion(String questionText, String answer) {
+        if (!isValidText(questionText) || !isValidText(answer)) {
+            JOptionPane.showMessageDialog(frame, "Bitte Frage und Antwort ausfüllen.");
+            return;
+        }
+
+        pool.addQuestion(new AnagramQuestion(questionText.trim(), answer.trim()));
+        updateManageView();
+    }
+
     public void deleteLastQuestion() {
         if (pool.size() <= 0) {
             JOptionPane.showMessageDialog(frame, "Keine Fragen zum Löschen vorhanden.");
@@ -76,6 +104,7 @@ public class MainController {
         updateManageView();
     }
 
+    // ---------- Save/Load ----------
     public void saveQuestionsToFile() {
         String filename = JOptionPane.showInputDialog(frame, "Dateiname zum Speichern:", "fragen.txt");
         if (filename == null || filename.trim().isEmpty()) {
@@ -113,20 +142,19 @@ public class MainController {
 
     private String buildQuestionListText(QuestionPool pool) {
         StringBuilder sb = new StringBuilder();
-        int i;
 
-        for (i = 0; i < pool.size(); i = i + 1) {
+        for (int i = 0; i < pool.size(); i = i + 1) {
             Question q = pool.getQuestion(i);
             sb.append(i).append(": ");
 
             if (q instanceof ImageQuestion) {
                 ImageQuestion iq = (ImageQuestion) q;
-                sb.append("[IMAGE] ");
-                sb.append(iq.getQuestionText()).append(" -> ").append(iq.getCorrectAnswer());
+                sb.append("[IMAGE] ").append(iq.getQuestionText()).append(" -> ").append(iq.getCorrectAnswer());
                 sb.append(" (").append(iq.getImagePath()).append(")");
+            } else if (q instanceof AnagramQuestion) {
+                sb.append("[ANAGRAM] ").append(q.getQuestionText()).append(" -> ").append(q.getCorrectAnswer());
             } else {
-                sb.append("[TEXT] ");
-                sb.append(q.getQuestionText()).append(" -> ").append(q.getCorrectAnswer());
+                sb.append("[TEXT] ").append(q.getQuestionText()).append(" -> ").append(q.getCorrectAnswer());
             }
 
             sb.append("\n");
@@ -135,6 +163,7 @@ public class MainController {
         return sb.toString();
     }
 
+    // ---------- Quiz (bleibt gleich) ----------
     public void quizSubmit(String answer) {
         Question current = quizModel.getCurrentQuestion();
         if (current == null) {
@@ -183,6 +212,7 @@ public class MainController {
         frame.getQuizPanel().showResult("");
     }
 
+    // ---------- Hangman (bleibt wie bei dir) ----------
     public void startNewHangmanGame() {
         Question q = pool.getRandomQuestion();
 
@@ -221,6 +251,79 @@ public class MainController {
         frame.getHangmanPanel().showWord(hangmanModel.getMaskedWord());
         frame.getHangmanPanel().showUsedLetters(hangmanModel.getUsedLetters());
         frame.getHangmanPanel().showTries(hangmanModel.getTriesLeft(), HANGMAN_MAX_TRIES);
+    }
+
+    // ---------- ANAGRAMM ----------
+    public void startNewAnagramRound() {
+        Question q = pool.getRandomAnagramQuestion();
+
+        if (q == null) {
+            frame.getAnagramPanel().showQuestion("Keine passenden Fragen vorhanden.");
+            frame.getAnagramPanel().showScrambled("");
+            frame.getAnagramPanel().showResult("");
+            frame.getAnagramPanel().showStats(anagramModel.getCorrectCount(), anagramModel.getWrongCount());
+            frame.getAnagramPanel().setInputsEnabled(false);
+            return;
+        }
+
+        anagramModel.startRound(q);
+        frame.getAnagramPanel().setInputsEnabled(true);
+
+        frame.getAnagramPanel().showQuestion(q.getQuestionText());
+        frame.getAnagramPanel().showScrambled(anagramModel.getScrambled());
+        frame.getAnagramPanel().showResult("");
+        frame.getAnagramPanel().showStats(anagramModel.getCorrectCount(), anagramModel.getWrongCount());
+        frame.getAnagramPanel().clearInput();
+    }
+
+    public void anagramSubmit(String input) {
+        Question q = anagramModel.getQuestion();
+        if (q == null) {
+            frame.getAnagramPanel().showResult("Keine Frage aktiv.");
+            return;
+        }
+
+        boolean correct = anagramModel.submit(input);
+
+        if (correct) {
+            frame.getAnagramPanel().showResult("Richtig! ✅");
+            frame.getAnagramPanel().showStats(anagramModel.getCorrectCount(), anagramModel.getWrongCount());
+            startNewAnagramRound();
+        } else {
+            frame.getAnagramPanel().showResult("Falsch! Richtige Antwort: " + q.getCorrectAnswer());
+            frame.getAnagramPanel().showStats(anagramModel.getCorrectCount(), anagramModel.getWrongCount());
+        }
+
+        frame.getAnagramPanel().clearInput();
+    }
+
+    public void anagramNext() {
+        startNewAnagramRound();
+    }
+
+    private Question getRandomAnagramCapableQuestion() {
+        // Bevorzugt AnagramQuestion, aber TextQuestion geht auch (ImageQuestion eher nicht sinnvoll)
+        if (pool == null || pool.size() == 0) {
+            return null;
+        }
+
+        // 30 Versuche, etwas Passendes zu finden
+        for (int t = 0; t < 30; t = t + 1) {
+            Question q = pool.getRandomQuestion();
+            if (q instanceof AnagramQuestion) {
+                return q;
+            }
+        }
+
+        // Fallback: irgendeine TextQuestion
+        for (int t = 0; t < 30; t = t + 1) {
+            Question q = pool.getRandomQuestion();
+            if (q instanceof TextQuestion) {
+                return q;
+            }
+        }
+
+        return null;
     }
 
     private boolean isValidText(String s) {

@@ -1,5 +1,6 @@
 package controller;
 
+import model.AnagramQuestion;
 import model.ImageQuestion;
 import model.Question;
 import model.QuestionPool;
@@ -30,6 +31,8 @@ public class QuestionFileManager {
                 if (q instanceof ImageQuestion) {
                     ImageQuestion iq = (ImageQuestion) q;
                     out.println("IMAGE;" + safe(iq.getQuestionText()) + ";" + safe(iq.getCorrectAnswer()) + ";" + safe(iq.getImagePath()));
+                } else if (q instanceof AnagramQuestion) {
+                    out.println("ANAGRAM;" + safe(q.getQuestionText()) + ";" + safe(q.getCorrectAnswer()));
                 } else {
                     out.println("TEXT;" + safe(q.getQuestionText()) + ";" + safe(q.getCorrectAnswer()));
                 }
@@ -53,7 +56,6 @@ public class QuestionFileManager {
                 if (line.isEmpty()) {
                     continue;
                 }
-
                 if (line.startsWith("#")) {
                     continue;
                 }
@@ -63,16 +65,15 @@ public class QuestionFileManager {
 
                 if ("TEXT".equals(type)) {
                     if (parts.length >= 3) {
-                        String questionText = parts[1];
-                        String answer = parts[2];
-                        pool.addQuestion(new TextQuestion(questionText, answer));
+                        pool.addQuestion(new TextQuestion(parts[1], parts[2]));
                     }
                 } else if ("IMAGE".equals(type)) {
                     if (parts.length >= 4) {
-                        String questionText = parts[1];
-                        String answer = parts[2];
-                        String imagePath = parts[3];
-                        pool.addQuestion(new ImageQuestion(questionText, answer, imagePath));
+                        pool.addQuestion(new ImageQuestion(parts[1], parts[2], parts[3]));
+                    }
+                } else if ("ANAGRAM".equals(type)) {
+                    if (parts.length >= 3) {
+                        pool.addQuestion(new AnagramQuestion(parts[1], parts[2]));
                     }
                 }
             }

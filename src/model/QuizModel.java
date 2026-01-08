@@ -2,27 +2,58 @@ package model;
 
 public class QuizModel {
 
-    private final QuestionPool pool;
+    private Question[] quizQuestions;
+    private int quizCount;
 
     private int currentIndex;
     private int correctCount;
     private int wrongCount;
 
     public QuizModel(QuestionPool pool) {
-        this.pool = pool;
+        buildQuizList(pool);
         this.currentIndex = 0;
         this.correctCount = 0;
         this.wrongCount = 0;
     }
 
-    public Question getCurrentQuestion() {
+    private void buildQuizList(QuestionPool pool) {
         if (pool == null || pool.size() == 0) {
+            quizQuestions = new Question[0];
+            quizCount = 0;
+            return;
+        }
+
+        // 1) zählen
+        int count = 0;
+        for (int i = 0; i < pool.size(); i = i + 1) {
+            Question q = pool.getQuestion(i);
+            if (q instanceof TextQuestion || q instanceof ImageQuestion) {
+                count = count + 1;
+            }
+        }
+
+        // 2) kopieren
+        quizQuestions = new Question[count];
+        int idx = 0;
+        for (int i = 0; i < pool.size(); i = i + 1) {
+            Question q = pool.getQuestion(i);
+            if (q instanceof TextQuestion || q instanceof ImageQuestion) {
+                quizQuestions[idx] = q;
+                idx = idx + 1;
+            }
+        }
+
+        quizCount = count;
+    }
+
+    public Question getCurrentQuestion() {
+        if (quizCount == 0) {
             return null;
         }
-        if (currentIndex < 0 || currentIndex >= pool.size()) {
+        if (currentIndex < 0 || currentIndex >= quizCount) {
             return null;
         }
-        return pool.getQuestion(currentIndex);
+        return quizQuestions[currentIndex];
     }
 
     public boolean submitAnswer(String userInput) {
@@ -41,14 +72,14 @@ public class QuizModel {
     }
 
     public void nextQuestion() {
-        if (pool == null || pool.size() == 0) {
+        if (quizCount == 0) {
             currentIndex = 0;
             return;
         }
 
         currentIndex = currentIndex + 1;
-        if (currentIndex >= pool.size()) {
-            currentIndex = 0; // wieder von vorne
+        if (currentIndex >= quizCount) {
+            currentIndex = 0;
         }
     }
 
@@ -65,8 +96,7 @@ public class QuizModel {
     }
 
     public int getQuestionCount() {
-        if (pool == null) return 0;
-        return pool.size();
+        return quizCount;
     }
 
     public void reset() {
@@ -75,5 +105,3 @@ public class QuizModel {
         wrongCount = 0;
     }
 }
-
-
