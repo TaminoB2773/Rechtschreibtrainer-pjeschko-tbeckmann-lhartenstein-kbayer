@@ -1,6 +1,7 @@
 package model;
 
-public class QuizModus {
+public class
+QuizModus {
 
     private QuestionPool pool;
     private int currentIndex;

@@ -11,7 +11,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-public class QuestionFileManager {
+public class  QuestionFileManager {
 
     public void saveToFile(QuestionPool pool, String filename) throws IOException {
         if (pool == null) {
