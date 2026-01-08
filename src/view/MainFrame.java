@@ -7,6 +7,7 @@ import java.awt.*;
 
 public class MainFrame extends JFrame {
 
+    private static final String CARD_HOME = "HOME"; // Konstante für die Startseite
     private static final String CARD_MANAGE = "MANAGE";
     private static final String CARD_QUIZ = "QUIZ";
     private static final String CARD_HANGMAN = "HANGMAN";
@@ -16,59 +17,71 @@ public class MainFrame extends JFrame {
     private final CardLayout cardLayout;
     private final JPanel cardPanel;
 
+    // Panels
+    private final HomePanel homePanel; // Das neue HomePanel
     private final QuestionManagementPanel managePanel;
     private final QuizPanel quizPanel;
     private final HangmanPanel hangmanPanel;
     private final AnagramPanel anagramPanel;
-    private final QuizResultPanel quizResultPanel; // Jetzt als final markiert
+    private final QuizResultPanel quizResultPanel;
 
     public MainFrame(MainController controller) {
-        super("Rechtschreibtrainer");
+        super("Rechtschreibtrainer Deluxe");
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
 
+        // Navigation oben hinzufügen
         add(createTopNavigation(controller), BorderLayout.NORTH);
 
         // Initialisierung aller Panels
+        homePanel = new HomePanel(controller);
         managePanel = new QuestionManagementPanel(controller);
         quizPanel = new QuizPanel(controller);
         hangmanPanel = new HangmanPanel(controller);
         anagramPanel = new AnagramPanel(controller);
-        quizResultPanel = new QuizResultPanel(controller); // Initialisierung hinzugefügt
+        quizResultPanel = new QuizResultPanel(controller);
 
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
 
         // Hinzufügen der Panels zum CardLayout
+        cardPanel.add(homePanel, CARD_HOME);
         cardPanel.add(managePanel, CARD_MANAGE);
         cardPanel.add(quizPanel, CARD_QUIZ);
         cardPanel.add(hangmanPanel, CARD_HANGMAN);
         cardPanel.add(anagramPanel, CARD_ANAGRAM);
-        cardPanel.add(quizResultPanel, CARD_RESULT); // Registrierung im Layout
+        cardPanel.add(quizResultPanel, CARD_RESULT);
 
         add(cardPanel, BorderLayout.CENTER);
 
-        setMinimumSize(new Dimension(900, 600));
+        setMinimumSize(new Dimension(1000, 700));
         setLocationRelativeTo(null);
         setVisible(true);
     }
 
     private JPanel createTopNavigation(MainController controller) {
         JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        top.setBackground(new Color(230, 230, 230));
 
-        JButton btnManage = new JButton("Fragen verwalten");
+        // Home Button
+        JButton btnHome = new JButton("🏠 Home");
+        btnHome.addActionListener(e -> controller.showHome());
+
+        JButton btnManage = new JButton("⚙️ Fragen verwalten");
         btnManage.addActionListener(e -> controller.showManage());
 
-        JButton btnQuiz = new JButton("Quiz");
+        JButton btnQuiz = new JButton("📝 Quiz");
         btnQuiz.addActionListener(e -> controller.showQuiz());
 
-        JButton btnHangman = new JButton("Hangman");
+        JButton btnHangman = new JButton("🪓 Hangman");
         btnHangman.addActionListener(e -> controller.showHangman());
 
-        JButton btnAnagram = new JButton("Anagramm");
+        JButton btnAnagram = new JButton("🧩 Anagramm");
         btnAnagram.addActionListener(e -> controller.showAnagram());
 
+        top.add(btnHome);
+        top.add(new JSeparator(JSeparator.VERTICAL));
         top.add(btnManage);
         top.add(btnQuiz);
         top.add(btnHangman);
@@ -78,6 +91,10 @@ public class MainFrame extends JFrame {
     }
 
     // --- Anzeige-Methoden ---
+
+    public void showHomePanel() {
+        cardLayout.show(cardPanel, CARD_HOME);
+    }
 
     public void showManagePanel() {
         cardLayout.show(cardPanel, CARD_MANAGE);
@@ -95,7 +112,6 @@ public class MainFrame extends JFrame {
         cardLayout.show(cardPanel, CARD_ANAGRAM);
     }
 
-    // Neue Methode für den Zusammenfassungs-Bildschirm
     public void showQuizResultPanel() {
         cardLayout.show(cardPanel, CARD_RESULT);
     }
@@ -117,9 +133,8 @@ public class MainFrame extends JFrame {
     public AnagramPanel getAnagramPanel() {
         return anagramPanel;
     }
-// Neuer Getter für den Controller
-public QuizResultPanel getQuizResultPanel() {
-    return quizResultPanel;
-}
-}
 
+    public QuizResultPanel getQuizResultPanel() {
+        return quizResultPanel;
+    }
+}

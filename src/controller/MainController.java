@@ -12,16 +12,15 @@ public class MainController {
     // ----- Models / Data -----
     private QuestionPool pool;
     private HangmanModel hangmanModel;
-
     private QuizModus quizModus;
     private AnagramModel anagramModel;
-
     private QuestionFileManager fileManager;
 
     // ----- Views -----
     private MainFrame frame;
 
     private final int HANGMAN_MAX_TRIES = 8;
+    private final String DEFAULT_FILE = "fragen.txt";
 
     // ----- LOGIN -----
     private LoginModel loginModel;
@@ -31,7 +30,6 @@ public class MainController {
     public MainController() {
         pool = new QuestionPool();
         hangmanModel = new HangmanModel();
-
         quizModus = new QuizModus(pool);
         anagramModel = new AnagramModel();
         fileManager = new QuestionFileManager();
@@ -41,6 +39,9 @@ public class MainController {
     }
 
     public void startApp() {
+        // Automatisches Laden beim Start
+        try {
+            pool = fileManager.loadFromFile(DEFAULT_FILE);
         // Start immer mit Login
         showLogin();
     }
@@ -104,22 +105,33 @@ public class MainController {
             pool = fileManager.loadFromFile(filename);
         } catch (IOException e) {
             pool = new QuestionPool();
+            System.out.println("Keine Standarddatei gefunden, starte mit leerem Pool.");
         }
 
     // ===================== NAVIGATION =====================
 
 
         frame = new MainFrame(this);
-        showManage();
+        showHome();
     }
 
-    // ---------- Navigation ----------
+    // ---------- NAVIGATION ----------
+
+    public void showHome() {
+        frame.showHomePanel();
+    }
+
     public void showManage() {
         frame.showManagePanel();
         updateManageView();
     }
 
     public void showQuiz() {
+        if (pool == null || pool.isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "Bitte zuerst Fragen hinzufügen oder laden!");
+            return;
+        }
+        pool.shuffle();
 
         if (pool != null && !pool.isEmpty()) {
             pool.shuffle(); // wenn du shuffle hast
@@ -128,7 +140,6 @@ public class MainController {
         // WICHTIG: Quiz nur TEXT+IMAGE -> QuizModus filtert intern (siehe unten)
 
         quizModus = new QuizModus(pool);
-
         frame.showQuizPanel();
         updateQuizView();
     }
@@ -142,6 +153,10 @@ public class MainController {
         frame.showAnagramPanel();
         startNewAnagramRound();
     }
+
+
+    // ---------- QUIZ LOGIK ----------
+
     public void addTextQuestion(String questionText, String answer) {
         if (!isValidText(questionText) || !isValidText(answer)) {
             JOptionPane.showMessageDialog(frame, "Bitte Frage und Antwort ausfüllen.");
@@ -233,10 +248,7 @@ public class MainController {
     // ---------- QUIZ ----------
     public void quizSubmit(String answer) {
         Question current = quizModus.getCurrentQuestion();
-        if (current == null) {
-            frame.getQuizPanel().showResult("Keine Fragen vorhanden.");
-            return;
-        }
+        if (current == null) return;
 
         boolean correct = quizModus.checkAnswer(answer);
 
@@ -246,12 +258,14 @@ public class MainController {
             frame.getQuizPanel().showResult("Falsch! ❌ Lösung: " + current.getCorrectAnswer());
         }
 
-        quizNext();
+        // Timer für automatischen Übergang (1,5 Sekunden Pause)
+        Timer timer = new Timer(1500, e -> quizNext());
+        timer.setRepeats(false);
+        timer.start();
     }
 
-    public void quizNext() {
+    private void quizNext() {
         quizModus.nextQuestion();
-
         if (quizModus.isFinished()) {
             showQuizSummary();
         } else {
@@ -261,16 +275,10 @@ public class MainController {
 
     private void updateQuizView() {
         Question q = quizModus.getCurrentQuestion();
+        if (q == null) return;
 
-        if (q == null) {
-            frame.getQuizPanel().showQuestion("Keine Fragen vorhanden.");
-            frame.getQuizPanel().showImage(null);
-            frame.getQuizPanel().showResult("");
-            return;
-        }
-
-        int answered = quizModus.getCorrectCount() + quizModus.getWrongQuestions().size();
-        String progress = "Frage " + (answered + 1) + " von " + quizModus.getTotalCount();
+        int currentNum = quizModus.getCorrectCount() + quizModus.getWrongQuestions().size() + 1;
+        String progress = "Frage " + currentNum + " von " + quizModus.getTotalCount();
 
         frame.getQuizPanel().showQuestion(progress + "\n\n" + q.getQuestionText());
 
@@ -279,7 +287,6 @@ public class MainController {
         } else {
             frame.getQuizPanel().showImage(null);
         }
-
         frame.getQuizPanel().showResult("");
     }
 
@@ -295,12 +302,13 @@ public class MainController {
     public void retryWrongQuestions() {
         List<Question> failures = quizModus.getWrongQuestions();
         if (failures.isEmpty()) {
-            JOptionPane.showMessageDialog(frame, "Keine Fehler zum Verbessern vorhanden!");
-            showQuiz();
+            showHome();
             return;
         }
 
         QuestionPool retryPool = new QuestionPool(failures.size());
+        for (Question q : failures) retryPool.addQuestion(q);
+        retryPool.shuffle();
         for (Question q : failures) {
             retryPool.addQuestion(q);
         }
@@ -326,23 +334,15 @@ public class MainController {
         updateQuizView();
     }
 
-    // ---------- HANGMAN ----------
+    // ---------- HANGMAN LOGIK ----------
+
     public void startNewHangmanGame() {
-        if (pool != null && !pool.isEmpty()) {
-            pool.shuffle();
-        }
-
-        Question q = pool.getRandomQuestion();
-
-        if (q == null) {
+        if (pool == null || pool.isEmpty()) {
             frame.getHangmanPanel().showMessage("Keine Fragen vorhanden!");
-            frame.getHangmanPanel().showWord("");
-            frame.getHangmanPanel().showUsedLetters("");
-            frame.getHangmanPanel().showTries(0, HANGMAN_MAX_TRIES);
-            frame.getHangmanPanel().setInputsEnabled(false);
             return;
         }
-
+        pool.shuffle();
+        Question q = pool.getRandomQuestion();
         hangmanModel.startGame(q, HANGMAN_MAX_TRIES);
         frame.getHangmanPanel().setInputsEnabled(true);
         updateHangmanView();
@@ -356,7 +356,7 @@ public class MainController {
 
         if (hangmanModel.isWon()) {
             frame.getHangmanPanel().setInputsEnabled(false);
-            frame.getHangmanPanel().showMessage("Gewonnen! ✅");
+            frame.getHangmanPanel().showMessage("Gewonnen! ✅ Lösung: " + hangmanModel.getWordToGuess());
         } else if (hangmanModel.isLost()) {
             frame.getHangmanPanel().setInputsEnabled(false);
 
@@ -365,68 +365,118 @@ public class MainController {
     }
 
     private void updateHangmanView() {
+        String masked = hangmanModel.getMaskedWord(); // z.B. "B_UM"
 
-        String masked = hangmanModel.getMaskedWord();
-
-        // Wenn du das "Unterstrich zu Minus" willst:
         if (masked != null) {
-            masked = masked.replace('_', '-');
+            // Wir machen aus "B_UM" -> "B _ U M"
+            // Jeder Buchstabe/Unterstrich bekommt ein Leerzeichen danach
+            StringBuilder spacedWord = new StringBuilder();
+            for (char c : masked.toCharArray()) {
+                spacedWord.append(c).append(" ");
+            }
+            masked = spacedWord.toString().trim();
         }
-        frame.getHangmanPanel().showWord(hangmanModel.getMaskedWord());
 
+        // Jetzt wird "B _ _ M" oder "_ _ _ _" im Label angezeigt
+        frame.getHangmanPanel().showWord(masked);
         frame.getHangmanPanel().showUsedLetters(hangmanModel.getUsedLetters());
         frame.getHangmanPanel().showTries(hangmanModel.getTriesLeft(), HANGMAN_MAX_TRIES);
     }
 
+    // ---------- ANAGRAMM LOGIK ----------
 
-    // ---------- ANAGRAMM ----------
     public void startNewAnagramRound() {
-        Question q = pool.getRandomAnagramQuestion();
-        if (q == null) {
-            frame.getAnagramPanel().showQuestion("Keine passenden Fragen vorhanden.");
-            frame.getAnagramPanel().showScrambled("");
-            frame.getAnagramPanel().showResult("");
-            frame.getAnagramPanel().showStats(anagramModel.getCorrectCount(), anagramModel.getWrongCount());
-            frame.getAnagramPanel().setInputsEnabled(false);
+        if (pool == null || pool.isEmpty()) {
+            frame.getAnagramPanel().showQuestion("Pool leer.");
             return;
         }
-
+        Question q = pool.getRandomAnagramQuestion();
+        if (q == null) {
+            frame.getAnagramPanel().showQuestion("Keine Anagramm-Fragen vorhanden.");
+            return;
+        }
         anagramModel.startRound(q);
         frame.getAnagramPanel().setInputsEnabled(true);
-
         frame.getAnagramPanel().showQuestion(q.getQuestionText());
         frame.getAnagramPanel().showScrambled(anagramModel.getScrambled());
-        frame.getAnagramPanel().showResult("");
         frame.getAnagramPanel().showStats(anagramModel.getCorrectCount(), anagramModel.getWrongCount());
         frame.getAnagramPanel().clearInput();
+        frame.getAnagramPanel().showResult("");
     }
 
     public void anagramSubmit(String input) {
-        Question q = anagramModel.getQuestion();
-        if (q == null) {
-            frame.getAnagramPanel().showResult("Keine Frage aktiv.");
-            return;
-        }
+        if (anagramModel.getQuestion() == null) return;
 
         boolean correct = anagramModel.submit(input);
-
         if (correct) {
             frame.getAnagramPanel().showResult("Richtig! ✅");
-            frame.getAnagramPanel().showStats(anagramModel.getCorrectCount(), anagramModel.getWrongCount());
-            startNewAnagramRound();
+            Timer t = new Timer(1000, e -> startNewAnagramRound());
+            t.setRepeats(false);
+            t.start();
         } else {
-            frame.getAnagramPanel().showResult("Falsch! Richtige Antwort: " + q.getCorrectAnswer());
+            frame.getAnagramPanel().showResult("Falsch! ❌");
             frame.getAnagramPanel().showStats(anagramModel.getCorrectCount(), anagramModel.getWrongCount());
         }
-
-        frame.getAnagramPanel().clearInput();
     }
-
     public void anagramNext() {
         startNewAnagramRound();
     }
 
-    // ===================== HELPERS =====================
+    // ---------- MANAGEMENT ----------
+
+    public void addTextQuestion(String q, String a) {
+        if (!isValidText(q) || !isValidText(a)) return;
+        pool.addQuestion(new TextQuestion(q.trim(), a.trim()));
+        updateManageView();
+    }
+
+    public void addImageQuestion(String q, String a, String path) {
+        if (!isValidText(q) || !isValidText(a) || !isValidText(path)) return;
+        pool.addQuestion(new ImageQuestion(q.trim(), a.trim(), path.trim()));
+        updateManageView();
+    }
+
+    public void addAnagramQuestion(String q, String a) {
+        if (!isValidText(q) || !isValidText(a)) return;
+        pool.addQuestion(new AnagramQuestion(q.trim(), a.trim()));
+        updateManageView();
+    }
+
+    public void deleteLastQuestion() {
+        if (pool.size() > 0) {
+            pool.removeQuestion(pool.size() - 1);
+            updateManageView();
+        }
+    }
+
+    public void saveQuestionsToFile() {
+        try {
+            fileManager.saveToFile(pool, DEFAULT_FILE);
+            JOptionPane.showMessageDialog(frame, "Speichern erfolgreich!");
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(frame, "Fehler: " + e.getMessage());
+        }
+    }
+
+    public void loadQuestionsFromFile() {
+        try {
+            pool = fileManager.loadFromFile(DEFAULT_FILE);
+            updateManageView();
+            JOptionPane.showMessageDialog(frame, "Fragen geladen!");
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(frame, "Fehler: " + e.getMessage());
+        }
+    }
+
+    private void updateManageView() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < pool.size(); i++) {
+            Question q = pool.getQuestion(i);
+            String type = q instanceof ImageQuestion ? "[IMG]" : (q instanceof AnagramQuestion ? "[ANA]" : "[TXT]");
+            sb.append(i).append(": ").append(type).append(" ").append(q.getQuestionText()).append("\n");
+        }
+        frame.getManagePanel().updateQuestionList(sb.toString());
+    }
 
     private boolean isValidText(String s) {
         return s != null && !s.trim().isEmpty();
