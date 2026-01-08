@@ -11,6 +11,7 @@ public class MainFrame extends JFrame {
     private static final String CARD_QUIZ = "QUIZ";
     private static final String CARD_HANGMAN = "HANGMAN";
     private static final String CARD_ANAGRAM = "ANAGRAM";
+    private static final String CARD_RESULT = "RESULT";
 
     private final CardLayout cardLayout;
     private final JPanel cardPanel;
@@ -116,9 +117,9 @@ public class MainFrame extends JFrame {
     public AnagramPanel getAnagramPanel() {
         return anagramPanel;
     }
+// Neuer Getter für den Controller
+public QuizResultPanel getQuizResultPanel() {
+    return quizResultPanel;
 }
-    // Neuer Getter für den Controller
-    public QuizResultPanel getQuizResultPanel() {
-        return quizResultPanel;
-    }
 }
+
