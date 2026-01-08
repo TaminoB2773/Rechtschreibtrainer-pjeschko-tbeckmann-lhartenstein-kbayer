@@ -9,6 +9,7 @@ import java.util.List;
 
 public class MainController {
 
+    // ----- Models / Data -----
     private QuestionPool pool;
     private HangmanModel hangmanModel;
 
@@ -16,24 +17,97 @@ public class MainController {
     private AnagramModel anagramModel;
 
     private QuestionFileManager fileManager;
+
+    // ----- Views -----
     private MainFrame frame;
 
     private final int HANGMAN_MAX_TRIES = 8;
 
+    // ----- LOGIN -----
+    private LoginModel loginModel;
+    private LoginView loginView;
+    private String loggedInUser;
+
     public MainController() {
         pool = new QuestionPool();
         hangmanModel = new HangmanModel();
+
         quizModus = new QuizModus(pool);
         anagramModel = new AnagramModel();
         fileManager = new QuestionFileManager();
+
+        // LOGIN
+        loginModel = new LoginModel();
     }
 
     public void startApp() {
+        // Start immer mit Login
+        showLogin();
+    }
+
+    // ===================== LOGIN =====================
+
+    public void showLogin() {
+        loginView = new LoginView();
+        loginView.setVisible(true);
+
+        loginView.getBtnLogin().addActionListener(e -> handleLogin());
+        loginView.getBtnRegister().addActionListener(e -> handleRegister());
+    }
+
+    private void handleLogin() {
+        String user = loginView.getUsername();
+        String pass = loginView.getPassword();
+
+        if (loginModel.authenticate(user, pass)) {
+            loggedInUser = user;
+            loginView.dispose();
+
+            // Hauptfenster starten
+            frame = new MainFrame(this);
+
+            // Fragen laden (ohne Dialog beim Start)
+            loadQuestionsAtStartup("fragen.txt");
+
+            showManage();
+        } else {
+            loginView.showMessage(
+                    "Login fehlgeschlagen",
+                    "Benutzername oder Passwort falsch",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    private void handleRegister() {
+        String user = loginView.getUsername();
+        String pass = loginView.getPassword();
+
+        if (loginModel.register(user, pass)) {
+            loginView.showMessage(
+                    "Registrierung",
+                    "Registrierung erfolgreich – jetzt einloggen",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+            loginView.clearFields();
+        } else {
+            loginView.showMessage(
+                    "Registrierung fehlgeschlagen",
+                    "Benutzer existiert bereits oder Eingabe leer",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    private void loadQuestionsAtStartup(String filename) {
         try {
-            pool = fileManager.loadFromFile("fragen.txt");
+            pool = fileManager.loadFromFile(filename);
         } catch (IOException e) {
             pool = new QuestionPool();
         }
+
+    // ===================== NAVIGATION =====================
+
 
         frame = new MainFrame(this);
         showManage();
@@ -46,11 +120,13 @@ public class MainController {
     }
 
     public void showQuiz() {
+
         if (pool != null && !pool.isEmpty()) {
             pool.shuffle(); // wenn du shuffle hast
         }
 
         // WICHTIG: Quiz nur TEXT+IMAGE -> QuizModus filtert intern (siehe unten)
+
         quizModus = new QuizModus(pool);
 
         frame.showQuizPanel();
@@ -66,8 +142,6 @@ public class MainController {
         frame.showAnagramPanel();
         startNewAnagramRound();
     }
-
-    // ---------- Manage: hinzufügen ----------
     public void addTextQuestion(String questionText, String answer) {
         if (!isValidText(questionText) || !isValidText(answer)) {
             JOptionPane.showMessageDialog(frame, "Bitte Frage und Antwort ausfüllen.");
@@ -104,7 +178,7 @@ public class MainController {
         updateManageView();
     }
 
-    // ---------- Save/Load ----------
+
     public void saveQuestionsToFile() {
         String filename = JOptionPane.showInputDialog(frame, "Dateiname zum Speichern:", "fragen.txt");
         if (filename == null || filename.trim().isEmpty()) return;
@@ -232,6 +306,18 @@ public class MainController {
         }
 
         if (!retryPool.isEmpty()) {
+            // retryPool.shuffle();
+        }
+
+        quizModus = new QuizModus(retryPool);
+        frame.showQuizPanel();
+        updateQuizView();
+
+        for (Question q : failures) {
+            retryPool.addQuestion(q);
+        }
+
+        if (!retryPool.isEmpty()) {
             retryPool.shuffle();
         }
 
@@ -273,20 +359,29 @@ public class MainController {
             frame.getHangmanPanel().showMessage("Gewonnen! ✅");
         } else if (hangmanModel.isLost()) {
             frame.getHangmanPanel().setInputsEnabled(false);
+
             frame.getHangmanPanel().showMessage("Verloren! ❌");
         }
     }
 
     private void updateHangmanView() {
+
+        String masked = hangmanModel.getMaskedWord();
+
+        // Wenn du das "Unterstrich zu Minus" willst:
+        if (masked != null) {
+            masked = masked.replace('_', '-');
+        }
         frame.getHangmanPanel().showWord(hangmanModel.getMaskedWord());
+
         frame.getHangmanPanel().showUsedLetters(hangmanModel.getUsedLetters());
         frame.getHangmanPanel().showTries(hangmanModel.getTriesLeft(), HANGMAN_MAX_TRIES);
     }
 
+
     // ---------- ANAGRAMM ----------
     public void startNewAnagramRound() {
         Question q = pool.getRandomAnagramQuestion();
-
         if (q == null) {
             frame.getAnagramPanel().showQuestion("Keine passenden Fragen vorhanden.");
             frame.getAnagramPanel().showScrambled("");
@@ -331,7 +426,16 @@ public class MainController {
         startNewAnagramRound();
     }
 
+    // ===================== HELPERS =====================
+
     private boolean isValidText(String s) {
         return s != null && !s.trim().isEmpty();
     }
+
+
+    // Optional: falls du später im UI "User anzeigen" willst
+    public String getLoggedInUser() {
+        return loggedInUser;
+    }
+
 }
