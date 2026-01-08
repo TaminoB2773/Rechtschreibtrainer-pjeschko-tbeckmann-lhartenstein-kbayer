@@ -153,4 +153,24 @@ public class QuestionPool {
     public Question getRandomQuestion() {
         return questions[(int) (Math.random() * count)];
     }
+
+    /**
+     * Mischt die vorhandenen Fragen im Array zufällig (Fisher-Yates-Shuffle).
+     * Funktioniert direkt auf dem internen Array ohne externe Collections.
+     */
+    public void shuffle() {
+        if (count <= 1) {
+            return;
+        }
+
+        for (int i = count - 1; i > 0; i--) {
+            // Zufälliger Index zwischen 0 und i
+            int j = (int) (Math.random() * (i + 1));
+
+            // Tausch der Elemente
+            Question temp = questions[i];
+            questions[i] = questions[j];
+            questions[j] = temp;
+        }
+    }
 }
