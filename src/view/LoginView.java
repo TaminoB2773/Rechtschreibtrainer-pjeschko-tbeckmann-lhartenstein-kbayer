@@ -6,8 +6,8 @@ import java.awt.*;
 public class LoginView extends JFrame {
 
     // Eingabefelder
-    private final JTextField tfUsername = new JTextField(18);
-    private final JPasswordField pfPassword = new JPasswordField(18);
+    private final JTextField username = new JTextField(18);
+    private final JPasswordField password = new JPasswordField(18);
 
     // Buttons
     private final JButton btnLogin = new JButton("Einloggen");
@@ -43,14 +43,14 @@ public class LoginView extends JFrame {
         form.add(new JLabel("Benutzername:"), gbc);
 
         gbc.gridx = 1;
-        form.add(tfUsername, gbc);
+        form.add(username, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 1;
         form.add(new JLabel("Passwort:"), gbc);
 
         gbc.gridx = 1;
-        form.add(pfPassword, gbc);
+        form.add(password, gbc);
 
         content.add(form, BorderLayout.CENTER);
 
@@ -72,11 +72,11 @@ public class LoginView extends JFrame {
 
     // ===== Getter für Controller =====
     public String getUsername() {
-        return tfUsername.getText().trim();
+        return username.getText().trim();
     }
 
     public String getPassword() {
-        return new String(pfPassword.getPassword());
+        return new String(password.getPassword());
     }
 
     public JButton getBtnLogin() {
@@ -101,8 +101,8 @@ public class LoginView extends JFrame {
     }
 
     public void clearFields() {
-        tfUsername.setText("");
-        pfPassword.setText("");
-        tfUsername.requestFocusInWindow();
+        username.setText("");
+        password.setText("");
+        username.requestFocusInWindow();
     }
 }
