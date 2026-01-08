@@ -151,26 +151,45 @@ public class QuestionPool {
     }
 
     public Question getRandomQuestion() {
-        return questions[(int) (Math.random() * count)];
-    }
-
-    /**
-     * Mischt die vorhandenen Fragen im Array zufällig (Fisher-Yates-Shuffle).
-     * Funktioniert direkt auf dem internen Array ohne externe Collections.
-     */
-    public void shuffle() {
-        if (count <= 1) {
-            return;
+        // Nur TEXT + IMAGE (Anagram NICHT)
+        if (count == 0) {
+            return null;
         }
 
-        for (int i = count - 1; i > 0; i--) {
-            // Zufälliger Index zwischen 0 und i
-            int j = (int) (Math.random() * (i + 1));
-
-            // Tausch der Elemente
-            Question temp = questions[i];
-            questions[i] = questions[j];
-            questions[j] = temp;
+        for (int t = 0; t < 50; t = t + 1) {
+            Question q = questions[(int) (Math.random() * count)];
+            if (q instanceof TextQuestion || q instanceof ImageQuestion) {
+                return q;
+            }
         }
+
+        // Fallback: erste passende
+        for (int i = 0; i < count; i = i + 1) {
+            if (questions[i] instanceof TextQuestion || questions[i] instanceof ImageQuestion) {
+                return questions[i];
+            }
+        }
+        return null;
     }
+
+    public Question getRandomAnagramQuestion() {
+        if (count == 0) {
+            return null;
+        }
+
+        for (int t = 0; t < 50; t = t + 1) {
+            Question q = questions[(int) (Math.random() * count)];
+            if (q instanceof AnagramQuestion) {
+                return q;
+            }
+        }
+
+        for (int i = 0; i < count; i = i + 1) {
+            if (questions[i] instanceof AnagramQuestion) {
+                return questions[i];
+            }
+        }
+        return null;
+    }
+
 }

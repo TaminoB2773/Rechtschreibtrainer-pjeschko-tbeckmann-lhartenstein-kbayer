@@ -10,7 +10,7 @@ public class MainFrame extends JFrame {
     private static final String CARD_MANAGE = "MANAGE";
     private static final String CARD_QUIZ = "QUIZ";
     private static final String CARD_HANGMAN = "HANGMAN";
-    private static final String CARD_RESULT = "RESULT"; // Neue ID für das Result-Panel
+    private static final String CARD_ANAGRAM = "ANAGRAM";
 
     private final CardLayout cardLayout;
     private final JPanel cardPanel;
@@ -18,6 +18,7 @@ public class MainFrame extends JFrame {
     private final QuestionManagementPanel managePanel;
     private final QuizPanel quizPanel;
     private final HangmanPanel hangmanPanel;
+    private final AnagramPanel anagramPanel;
     private final QuizResultPanel quizResultPanel; // Jetzt als final markiert
 
     public MainFrame(MainController controller) {
@@ -32,6 +33,7 @@ public class MainFrame extends JFrame {
         managePanel = new QuestionManagementPanel(controller);
         quizPanel = new QuizPanel(controller);
         hangmanPanel = new HangmanPanel(controller);
+        anagramPanel = new AnagramPanel(controller);
         quizResultPanel = new QuizResultPanel(controller); // Initialisierung hinzugefügt
 
         cardLayout = new CardLayout();
@@ -41,6 +43,7 @@ public class MainFrame extends JFrame {
         cardPanel.add(managePanel, CARD_MANAGE);
         cardPanel.add(quizPanel, CARD_QUIZ);
         cardPanel.add(hangmanPanel, CARD_HANGMAN);
+        cardPanel.add(anagramPanel, CARD_ANAGRAM);
         cardPanel.add(quizResultPanel, CARD_RESULT); // Registrierung im Layout
 
         add(cardPanel, BorderLayout.CENTER);
@@ -62,9 +65,13 @@ public class MainFrame extends JFrame {
         JButton btnHangman = new JButton("Hangman");
         btnHangman.addActionListener(e -> controller.showHangman());
 
+        JButton btnAnagram = new JButton("Anagramm");
+        btnAnagram.addActionListener(e -> controller.showAnagram());
+
         top.add(btnManage);
         top.add(btnQuiz);
         top.add(btnHangman);
+        top.add(btnAnagram);
 
         return top;
     }
@@ -81,6 +88,10 @@ public class MainFrame extends JFrame {
 
     public void showHangmanPanel() {
         cardLayout.show(cardPanel, CARD_HANGMAN);
+    }
+
+    public void showAnagramPanel() {
+        cardLayout.show(cardPanel, CARD_ANAGRAM);
     }
 
     // Neue Methode für den Zusammenfassungs-Bildschirm
@@ -102,6 +113,10 @@ public class MainFrame extends JFrame {
         return hangmanPanel;
     }
 
+    public AnagramPanel getAnagramPanel() {
+        return anagramPanel;
+    }
+}
     // Neuer Getter für den Controller
     public QuizResultPanel getQuizResultPanel() {
         return quizResultPanel;
