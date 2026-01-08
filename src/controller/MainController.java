@@ -105,7 +105,6 @@ public class MainController {
         } catch (IOException e) {
             pool = new QuestionPool();
         }
-    }
 
     // ===================== NAVIGATION =====================
 
@@ -231,13 +230,6 @@ public class MainController {
         return sb.toString();
     }
 
-    // ===================== QUIZ (QuizModus) =====================
-
-            sb.append("\n");
-        }
-        return sb.toString();
-    }
-
     // ---------- QUIZ ----------
     public void quizSubmit(String answer) {
         Question current = quizModus.getCurrentQuestion();
@@ -320,11 +312,7 @@ public class MainController {
         quizModus = new QuizModus(retryPool);
         frame.showQuizPanel();
         updateQuizView();
-    }
 
-
-
-        QuestionPool retryPool = new QuestionPool(failures.size());
         for (Question q : failures) {
             retryPool.addQuestion(q);
         }
