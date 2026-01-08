@@ -191,5 +191,15 @@ public class QuestionPool {
         }
         return null;
     }
+    public void shuffle() {
+        // Fisher-Yates Shuffle
+        for (int i = count - 1; i > 0; i = i - 1) {
+            int j = (int) (Math.random() * (i + 1));
+
+            Question tmp = questions[i];
+            questions[i] = questions[j];
+            questions[j] = tmp;
+        }
+    }
 
 }
