@@ -19,6 +19,7 @@ public class MainFrame extends JFrame {
     private final QuizPanel quizPanel;
     private final HangmanPanel hangmanPanel;
     private final AnagramPanel anagramPanel;
+    private final QuizResultPanel quizResultPanel; // Jetzt als final markiert
 
     public MainFrame(MainController controller) {
         super("Rechtschreibtrainer");
@@ -28,18 +29,22 @@ public class MainFrame extends JFrame {
 
         add(createTopNavigation(controller), BorderLayout.NORTH);
 
+        // Initialisierung aller Panels
         managePanel = new QuestionManagementPanel(controller);
         quizPanel = new QuizPanel(controller);
         hangmanPanel = new HangmanPanel(controller);
         anagramPanel = new AnagramPanel(controller);
+        quizResultPanel = new QuizResultPanel(controller); // Initialisierung hinzugefügt
 
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
 
+        // Hinzufügen der Panels zum CardLayout
         cardPanel.add(managePanel, CARD_MANAGE);
         cardPanel.add(quizPanel, CARD_QUIZ);
         cardPanel.add(hangmanPanel, CARD_HANGMAN);
         cardPanel.add(anagramPanel, CARD_ANAGRAM);
+        cardPanel.add(quizResultPanel, CARD_RESULT); // Registrierung im Layout
 
         add(cardPanel, BorderLayout.CENTER);
 
@@ -71,6 +76,8 @@ public class MainFrame extends JFrame {
         return top;
     }
 
+    // --- Anzeige-Methoden ---
+
     public void showManagePanel() {
         cardLayout.show(cardPanel, CARD_MANAGE);
     }
@@ -87,6 +94,13 @@ public class MainFrame extends JFrame {
         cardLayout.show(cardPanel, CARD_ANAGRAM);
     }
 
+    // Neue Methode für den Zusammenfassungs-Bildschirm
+    public void showQuizResultPanel() {
+        cardLayout.show(cardPanel, CARD_RESULT);
+    }
+
+    // --- Getter ---
+
     public QuestionManagementPanel getManagePanel() {
         return managePanel;
     }
@@ -101,5 +115,10 @@ public class MainFrame extends JFrame {
 
     public AnagramPanel getAnagramPanel() {
         return anagramPanel;
+    }
+}
+    // Neuer Getter für den Controller
+    public QuizResultPanel getQuizResultPanel() {
+        return quizResultPanel;
     }
 }
