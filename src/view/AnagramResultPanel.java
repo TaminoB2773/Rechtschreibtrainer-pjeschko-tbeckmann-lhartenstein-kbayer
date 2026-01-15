@@ -1,6 +1,5 @@
 package view;
 
-import controller.MainController;
 import model.Question;
 
 import javax.swing.*;
