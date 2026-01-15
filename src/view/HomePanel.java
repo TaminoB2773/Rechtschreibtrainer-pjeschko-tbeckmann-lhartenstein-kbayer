@@ -1,6 +1,8 @@
 package view;
 
-import controller.MainController;
+import model.*;
+import view.*;
+import controller.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;

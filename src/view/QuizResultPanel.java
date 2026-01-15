@@ -1,7 +1,8 @@
 package view;
 
-import controller.MainController;
-import model.Question;
+import model.*;
+import view.*;
+import controller.*;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
