@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Rechtschreibtrainer-pjeschko-tbeckmann-lhartenstein-kbayer:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Rechtschreibtrainer_pjeschko_tbeckmann_lhartenstein_kbayer_jar</output-path>
+    <root id="archive" name="Rechtschreibtrainer-pjeschko-tbeckmann-lhartenstein-kbayer.jar">
+      <element id="module-output" name="Rechtschreibtrainer-pjeschko-tbeckmann-lhartenstein-kbayer" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/sqlite-jdbc-3.45.1.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/slf4j-simple-2.0.13.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/slf4j-api-2.0.13.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
