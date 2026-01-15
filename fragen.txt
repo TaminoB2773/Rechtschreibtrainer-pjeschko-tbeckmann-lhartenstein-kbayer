@@ -1,40 +1,40 @@
-TEXT;Setze ß oder ss: Stra_e;Straße
-IMAGE;Was siehst du?;Katze;img/Katze.png
-TEXT;Setze ß oder ss: Fu_;Fuß
-IMAGE;Was siehst du?;Haus;img/Haus.png
-TEXT;Setze ß oder ss: gro_ ;groß
-IMAGE;Was siehst du?;Maus;img/Maus.png
-TEXT;Setze ß oder ss: hei_en;heißen
-IMAGE;Was siehst du?;Lehrer;img/Lehrer.png
-TEXT;Setze ß oder ss: Flu_ ;Fluss
-IMAGE;Was siehst du?;Ball;img/Ball.png
-TEXT;Setze ß oder ss: mü_en;müssen
-IMAGE;Was siehst du?;Auto;img/Auto.jpg
-TEXT;Setze ie oder i: Br_f;Brief
-IMAGE;Was siehst du?;Fenster;img/Fenster.png
-TEXT;Setze ie oder i: sp_len ;spielen
-TEXT;Setze ie oder i: T_r;Tier
-TEXT;Setze ie oder i: L_d ;Lied
-TEXT;Korrigiere den Fehler: Standart;Standard
-IMAGE;Was siehst du?;Hund;img/hund.png
+TEXT; Setze ß oder ss: Stra_e;Straße
+IMAGE; Was siehst du?;Katze;img/Katze.png
+TEXT; Setze ß oder ss: Fu_;Fuß
+IMAGE; Was siehst du?;Haus;img/Haus.png
+TEXT; Setze ß oder ss: gro_ ;groß
+IMAGE; Was siehst du?;Maus;img/Maus.png
+TEXT; Setze ß oder ss: hei_en;heißen
+IMAGE; Was siehst du?;Lehrer;img/Lehrer.png
+TEXT; Setze ß oder ss: Flu_ ;Fluss
+IMAGE; Was siehst du?;Ball;img/Ball.png
+TEXT; Setze ß oder ss: mü_en;müssen
+IMAGE; Was siehst du?;Auto;img/Auto.jpg
+TEXT; Setze ie oder i: Br_f;Brief
+IMAGE; Was siehst du?;Fenster;img/Fenster.png
+TEXT; Setze ie oder i: sp_len ;spielen
+TEXT; Setze ie oder i: T_r;Tier
+TEXT; Setze ie oder i: L_d ;Lied
+TEXT; Korrigiere den Fehler: Standart;Standard
+IMAGE; Was siehst du?;Hund;img/hund.png
 TEXT;Korrigiere den Fehler: Maschiene;Maschine
-ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Straße
-ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Fuß
-ANAGRAM;Buchstaben-Salat: Ordne zum Wort;groß
-ANAGRAM;Buchstaben-Salat: Ordne zum Wort;heißen
-ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Fluss
-ANAGRAM;Buchstaben-Salat: Ordne zum Wort;müssen
-ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Brief
-ANAGRAM;Buchstaben-Salat: Ordne zum Wort;spielen
-ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Tier
-ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Lied
-ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Standard
-ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Maschine
-ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Katze
-ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Maus
-ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Lehrer
-ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Fenster
-ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Hund
-ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Haus
-ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Ball
-ANAGRAM;Buchstaben-Salat: Ordne zum Wort;Auto
+ANAGRAM;Buchstaben-Salat: Ordne das Wort;Straße
+ANAGRAM;Buchstaben-Salat: Ordne das Wort;Fuß
+ANAGRAM;Buchstaben-Salat: Ordne das Wort;groß
+ANAGRAM;Buchstaben-Salat: Ordne das Wort;heißen
+ANAGRAM;Buchstaben-Salat: Ordne das Wort;Fluss
+ANAGRAM;Buchstaben-Salat: Ordne das Wort;müssen
+ANAGRAM;Buchstaben-Salat: Ordne das Wort;Brief
+ANAGRAM;Buchstaben-Salat: Ordne das Wort;spielen
+ANAGRAM;Buchstaben-Salat: Ordne das Wort;Tier
+ANAGRAM;Buchstaben-Salat: Ordne das Wort;Lied
+ANAGRAM;Buchstaben-Salat: Ordne das Wort;Standard
+ANAGRAM;Buchstaben-Salat: Ordne das Wort;Maschine
+ANAGRAM;Buchstaben-Salat: Ordne das Wort;Katze
+ANAGRAM;Buchstaben-Salat: Ordne das Wort;Maus
+ANAGRAM;Buchstaben-Salat: Ordne das Wort;Lehrer
+ANAGRAM;Buchstaben-Salat: Ordne das Wort;Fenster
+ANAGRAM;Buchstaben-Salat: Ordne das Wort;Hund
+ANAGRAM;Buchstaben-Salat: Ordne das Wort;Haus
+ANAGRAM;Buchstaben-Salat: Ordne das Wort;Ball
+ANAGRAM;Buchstaben-Salat: Ordne das Wort;Auto

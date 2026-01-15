@@ -1,10 +1,7 @@
 package controller;
 
-import model.AnagramQuestion;
-import model.ImageQuestion;
-import model.Question;
-import model.QuestionPool;
-import model.TextQuestion;
+import model.*;
+import view.*;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
