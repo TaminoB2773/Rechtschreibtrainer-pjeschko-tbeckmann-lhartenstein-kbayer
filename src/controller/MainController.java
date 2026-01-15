@@ -136,8 +136,10 @@ public class MainController {
 
     public void showAnagram() {
         frame.showAnagramPanel();
+        anagramModel.resetGame();   // WICHTIG: neue Session
         startNewAnagramRound();
     }
+
 
     // ===================== QUIZ LOGIK =====================
 
@@ -255,38 +257,61 @@ public class MainController {
     // ===================== ANAGRAMM LOGIK =====================
 
     public void startNewAnagramRound() {
+        if (anagramModel.isFinished()) {
+            showAnagramSummary();
+            return;
+        }
+
         if (pool == null || pool.isEmpty()) {
             frame.getAnagramPanel().showQuestion("Pool leer.");
             return;
         }
+
         Question q = pool.getRandomAnagramQuestion();
         if (q == null) {
             frame.getAnagramPanel().showQuestion("Keine Anagramm-Fragen vorhanden.");
             return;
         }
+
         anagramModel.startRound(q);
+
         frame.getAnagramPanel().setInputsEnabled(true);
-        frame.getAnagramPanel().showQuestion(q.getQuestionText());
+
+        int roundNr = anagramModel.getCurrentRound() + 1; // +1 weil Anzeige menschlich
+        int max = anagramModel.getMaxRounds();
+
+        frame.getAnagramPanel().showQuestion("Runde " + roundNr + " von " + max + ": " + q.getQuestionText());
         frame.getAnagramPanel().showScrambled(anagramModel.getScrambled());
         frame.getAnagramPanel().showStats(anagramModel.getCorrectCount(), anagramModel.getWrongCount());
         frame.getAnagramPanel().clearInput();
         frame.getAnagramPanel().showResult("");
     }
 
+
     public void anagramSubmit(String input) {
         if (anagramModel.getQuestion() == null) return;
 
         boolean correct = anagramModel.submit(input);
+
         if (correct) {
             frame.getAnagramPanel().showResult("Richtig! ✅");
-            Timer t = new Timer(1000, e -> startNewAnagramRound());
-            t.setRepeats(false);
-            t.start();
         } else {
-            frame.getAnagramPanel().showResult("Falsch! ❌");
-            frame.getAnagramPanel().showStats(anagramModel.getCorrectCount(), anagramModel.getWrongCount());
+            frame.getAnagramPanel().showResult("Falsch! ❌ Lösung: " + anagramModel.getQuestion().getCorrectAnswer());
         }
+
+        frame.getAnagramPanel().showStats(anagramModel.getCorrectCount(), anagramModel.getWrongCount());
+
+        Timer t = new Timer(1000, e -> {
+            if (anagramModel.isFinished()) {
+                showAnagramSummary();
+            } else {
+                startNewAnagramRound();
+            }
+        });
+        t.setRepeats(false);
+        t.start();
     }
+
 
     public void anagramNext() {
         startNewAnagramRound();
@@ -310,6 +335,15 @@ public class MainController {
         if (!isValidText(q) || !isValidText(a)) return;
         pool.addQuestion(new AnagramQuestion(q.trim(), a.trim()));
         updateManageView();
+    }
+
+    private void showAnagramSummary() {
+        frame.showAnagramResultPanel();
+        frame.getAnagramResultPanel().showResults(
+                anagramModel.getCorrectCount(),
+                anagramModel.getMaxRounds(),
+                anagramModel.getWrongQuestions()
+        );
     }
 
     public void deleteLastQuestion() {

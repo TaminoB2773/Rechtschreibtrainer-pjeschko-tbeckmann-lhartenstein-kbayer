@@ -12,6 +12,8 @@ public class MainFrame extends JFrame {
     private static final String CARD_HANGMAN = "HANGMAN";
     private static final String CARD_ANAGRAM = "ANAGRAM";
     private static final String CARD_RESULT = "RESULT";
+    private static final String CARD_ANAGRAM_RESULT = "ANAGRAM_RESULT";
+
 
     private final CardLayout cardLayout;
     private final JPanel cardPanel;
@@ -23,6 +25,7 @@ public class MainFrame extends JFrame {
     private final HangmanPanel hangmanPanel;
     private final AnagramPanel anagramPanel;
     private final QuizResultPanel quizResultPanel;
+    private final AnagramResultPanel anagramResultPanel;
 
     public MainFrame(MainController controller) {
         super("Vocabify - Rechtschreibtrainer Deluxe");
@@ -40,6 +43,7 @@ public class MainFrame extends JFrame {
         hangmanPanel = new HangmanPanel(controller);
         anagramPanel = new AnagramPanel(controller);
         quizResultPanel = new QuizResultPanel(controller);
+        anagramResultPanel = new AnagramResultPanel(controller);
 
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
@@ -51,6 +55,7 @@ public class MainFrame extends JFrame {
         cardPanel.add(hangmanPanel, CARD_HANGMAN);
         cardPanel.add(anagramPanel, CARD_ANAGRAM);
         cardPanel.add(quizResultPanel, CARD_RESULT);
+        cardPanel.add(anagramResultPanel, CARD_ANAGRAM_RESULT);
 
         add(cardPanel, BorderLayout.CENTER);
 
@@ -129,10 +134,15 @@ public class MainFrame extends JFrame {
         cardLayout.show(cardPanel, CARD_RESULT);
     }
 
+    public void showAnagramResultPanel() {cardLayout.show(cardPanel, CARD_ANAGRAM_RESULT);}
+
+
     // --- Getter ---
     public QuestionManagementPanel getManagePanel() { return managePanel; }
     public QuizPanel getQuizPanel() { return quizPanel; }
     public HangmanPanel getHangmanPanel() { return hangmanPanel; }
     public AnagramPanel getAnagramPanel() { return anagramPanel; }
     public QuizResultPanel getQuizResultPanel() { return quizResultPanel; }
+    public AnagramResultPanel getAnagramResultPanel() {return anagramResultPanel;}
+
 }
