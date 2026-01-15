@@ -80,7 +80,7 @@ public class LoginModel {
         if ("admin".equalsIgnoreCase(username) && "admin".equals(password)) {
             return true;
         }
-        if ("tester".equalsIgnoreCase(username) && "test".equals(password)) {
+        if ("Tester".equalsIgnoreCase(username) && "test".equals(password)) {
             return true;
         }
 
